@@ -39,61 +39,51 @@ export default function HomePage() {
 
   return (
     <div>
-      {/* Hero Section */}
-      <section className="relative min-h-screen flex flex-col items-center justify-center text-center px-6 pt-24 pb-16">
-        {/* Decorative gradients */}
-        <div className="absolute top-[15%] left-[5%] w-[300px] h-[300px] bg-[radial-gradient(circle,var(--color-ochre)_0%,transparent_70%)] opacity-[0.15] blur-[60px] animate-float" />
-        <div className="absolute bottom-[20%] right-[10%] w-[250px] h-[250px] bg-[radial-gradient(circle,var(--color-terracotta)_0%,transparent_70%)] opacity-[0.12] blur-[50px] animate-float-reverse" />
+      {/* Hero Section - Full Width Background */}
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+        {/* Background Image */}
+        <div className="absolute inset-0">
+          <Image
+            src="/images/hero-penang-art.jpg"
+            alt="Penang Street Art"
+            fill
+            className="object-cover"
+            priority
+          />
+          {/* Gradient overlay for readability */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70" />
+        </div>
 
-        <div className="relative z-10 max-w-4xl">
-          <span className="text-xs font-semibold text-[var(--color-teal)] uppercase tracking-[0.2em] mb-6 block">
+        {/* Content */}
+        <div className="relative z-10 max-w-4xl mx-auto px-6 text-center pt-24 pb-16">
+          <span className="inline-block text-xs font-semibold text-[var(--color-ochre)] uppercase tracking-[0.25em] mb-6 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full">
             A Platform for Our Creative Community
           </span>
-          <h1 className="font-display text-5xl md:text-6xl lg:text-7xl font-light text-[var(--color-soft-black)] leading-[1.1] tracking-tight">
+          <h1 className="font-display text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-[1.1] tracking-tight drop-shadow-lg">
             Where Penang&apos;s{' '}
-            <em className="text-[var(--color-terracotta)]">Artists</em>{' '}
+            <span className="text-[var(--color-ochre)]">Artists</span>{' '}
             Shine
           </h1>
-          <p className="mt-6 text-lg md:text-xl text-[var(--color-charcoal)]/80 max-w-xl mx-auto">
+          <p className="mt-6 text-lg md:text-xl text-white/90 max-w-xl mx-auto drop-shadow-md">
             A free platform to showcase your work, connect with fellow creatives,
             and be discovered by the world.
           </p>
-          <div className="mt-8 flex flex-wrap gap-4 justify-center">
+          <div className="mt-10 flex flex-wrap gap-4 justify-center">
             <Link href="/artists">
-              <Button className="bg-[var(--color-terracotta)] hover:bg-[#B5503A] text-white font-medium px-8 py-6 text-lg rounded-full shadow-lg shadow-[var(--color-terracotta)]/30">
+              <Button className="bg-[var(--color-terracotta)] hover:bg-[#B5503A] text-white font-semibold px-8 py-6 text-lg rounded-full shadow-xl">
                 Browse Artists
               </Button>
             </Link>
             <Link href="/register">
-              <Button
-                variant="outline"
-                className="border-2 border-[var(--color-charcoal)]/20 text-[var(--color-charcoal)] font-medium px-8 py-6 text-lg rounded-full hover:bg-[var(--color-charcoal)] hover:text-white"
-              >
+              <Button className="bg-white/20 backdrop-blur-sm border-2 border-white text-white font-semibold px-8 py-6 text-lg rounded-full hover:bg-white hover:text-[var(--color-soft-black)]">
                 Join as Artist
               </Button>
             </Link>
           </div>
         </div>
 
-        {/* Hero image */}
-        <div className="relative z-10 mt-12 max-w-4xl w-full px-4">
-          <div className="relative rounded-2xl overflow-hidden shadow-2xl">
-            <Image
-              src="https://images.unsplash.com/photo-1561214115-f2f134cc4912?w=1200&h=675&fit=crop"
-              alt="Penang Street Art"
-              width={1200}
-              height={675}
-              className="w-full h-auto"
-              priority
-            />
-          </div>
-          <p className="mt-4 text-sm text-[var(--color-teal)] text-center italic">
-            Celebrating the vibrant art scene of Penang
-          </p>
-        </div>
-
         {/* Scroll hint */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-[var(--color-teal)]">
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/80">
           <span className="text-xs uppercase tracking-[0.15em]">Discover More</span>
           <ChevronDown className="w-5 h-5 animate-bounce" />
         </div>
