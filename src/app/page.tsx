@@ -39,7 +39,7 @@ export default function HomePage() {
 
   return (
     <div>
-      {/* Hero Section - Full Width Background */}
+      {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
         {/* Background Image */}
         <div className="absolute inset-0">
