@@ -61,7 +61,7 @@ export default function HomePage() {
           </span>
           <h1 className="font-display text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-[1.1] tracking-tight [text-shadow:_0_4px_12px_rgb(0_0_0_/_50%)]">
             Where Penang&apos;s{' '}
-            <span className="text-[#FFD700]">Artists</span>{' '}
+            <span className="text-[var(--color-terracotta)]">Artists</span>{' '}
             Shine
           </h1>
           <p className="mt-6 text-lg md:text-xl text-white max-w-xl mx-auto [text-shadow:_0_2px_8px_rgb(0_0_0_/_40%)]">
