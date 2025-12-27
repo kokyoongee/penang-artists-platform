@@ -113,6 +113,15 @@ export function ArtistProfileForm({ profile, artist }: ArtistProfileFormProps) {
     setIsSaved(false);
   };
 
+  const generateSlug = (name: string) => {
+    return name
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .trim();
+  };
+
   const handleSubmit = async (e: React.FormEvent, submitForReview = false) => {
     e.preventDefault();
     setError('');
@@ -127,9 +136,28 @@ export function ArtistProfileForm({ profile, artist }: ArtistProfileFormProps) {
         .map((s) => s.trim())
         .filter(Boolean);
 
+      // Generate slug from display name
+      const baseSlug = generateSlug(formData.display_name);
+      let slug = baseSlug;
+
+      // Only check for unique slug when creating new artist
+      if (!artist) {
+        // Check if slug exists, add random suffix if needed
+        const { data: existing } = await supabase
+          .from('artists')
+          .select('slug')
+          .eq('slug', baseSlug)
+          .single();
+
+        if (existing) {
+          slug = `${baseSlug}-${Math.random().toString(36).substring(2, 6)}`;
+        }
+      }
+
       const artistData = {
         ...formData,
         styles,
+        slug: artist?.slug || slug, // Keep existing slug on update
         user_id: profile.id,
         status: submitForReview ? 'pending' : (artist?.status || 'draft'),
       };
