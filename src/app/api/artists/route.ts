@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createAdminClient, createServerClient, getUser } from '@/lib/supabase/server';
+import { createAdminClient, getUser } from '@/lib/supabase/server';
+import { artistSchema, artistUpdateSchema } from '@/lib/validations/artist';
+import { apiError, handleValidationError } from '@/lib/api-error';
+import { checkRateLimit, getClientIP, rateLimitResponse } from '@/lib/rate-limit';
+import { ZodError } from 'zod';
 
 // Generate slug from display name
 function generateSlug(name: string): string {
@@ -14,13 +18,23 @@ function generateSlug(name: string): string {
 // POST - Create new artist profile
 export async function POST(request: NextRequest) {
   try {
+    // Rate limit check
+    const clientIP = getClientIP(request);
+    const rateLimitResult = await checkRateLimit(`artist-create:${clientIP}`, true);
+    if (!rateLimitResult.success) {
+      return rateLimitResponse(rateLimitResult);
+    }
+
     // Verify user is authenticated
     const user = await getUser();
     if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return apiError('UNAUTHORIZED');
     }
 
+    // Parse and validate request body
     const body = await request.json();
+    const validatedData = artistSchema.parse(body);
+
     const adminClient = createAdminClient();
 
     // Check if user already has an artist profile
@@ -31,14 +45,11 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (existing) {
-      return NextResponse.json(
-        { error: 'Artist profile already exists' },
-        { status: 400 }
-      );
+      return apiError('BAD_REQUEST', 'Artist profile already exists');
     }
 
     // Generate unique slug
-    const baseSlug = generateSlug(body.display_name);
+    const baseSlug = generateSlug(validatedData.display_name);
     let slug = baseSlug;
 
     const { data: slugExists } = await adminClient
@@ -55,43 +66,53 @@ export async function POST(request: NextRequest) {
     const { data: artist, error } = await adminClient
       .from('artists')
       .insert({
-        ...body,
+        ...validatedData,
         slug,
         user_id: user.id,
-        status: body.status || 'draft',
+        status: validatedData.status || 'draft',
       })
       .select()
       .single();
 
     if (error) {
-      console.error('Error creating artist:', error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return apiError('INTERNAL_ERROR', undefined, {
+        operation: 'create_artist',
+        supabaseError: error.message,
+      });
     }
 
     return NextResponse.json({ artist });
-  } catch (error: any) {
-    console.error('Artist creation error:', error);
-    return NextResponse.json(
-      { error: error.message || 'Internal server error' },
-      { status: 500 }
-    );
+  } catch (error) {
+    if (error instanceof ZodError) {
+      return handleValidationError(error);
+    }
+    console.error('[Artist Create Error]', error);
+    return apiError('INTERNAL_ERROR');
   }
 }
 
 // PUT - Update existing artist profile
 export async function PUT(request: NextRequest) {
   try {
+    // Rate limit check
+    const clientIP = getClientIP(request);
+    const rateLimitResult = await checkRateLimit(`artist-update:${clientIP}`);
+    if (!rateLimitResult.success) {
+      return rateLimitResponse(rateLimitResult);
+    }
+
     // Verify user is authenticated
     const user = await getUser();
     if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return apiError('UNAUTHORIZED');
     }
 
+    // Parse and validate request body
     const body = await request.json();
-    const { id, ...updateData } = body;
+    const { id, ...updateData } = artistUpdateSchema.parse(body);
 
     if (!id) {
-      return NextResponse.json({ error: 'Artist ID required' }, { status: 400 });
+      return apiError('BAD_REQUEST', 'Artist ID required');
     }
 
     const adminClient = createAdminClient();
@@ -103,8 +124,12 @@ export async function PUT(request: NextRequest) {
       .eq('id', id)
       .single();
 
-    if (!artist || artist.user_id !== user.id) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    if (!artist) {
+      return apiError('NOT_FOUND');
+    }
+
+    if (artist.user_id !== user.id) {
+      return apiError('FORBIDDEN');
     }
 
     // Update artist profile
@@ -116,16 +141,18 @@ export async function PUT(request: NextRequest) {
       .single();
 
     if (error) {
-      console.error('Error updating artist:', error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return apiError('INTERNAL_ERROR', undefined, {
+        operation: 'update_artist',
+        supabaseError: error.message,
+      });
     }
 
     return NextResponse.json({ artist: updated });
-  } catch (error: any) {
-    console.error('Artist update error:', error);
-    return NextResponse.json(
-      { error: error.message || 'Internal server error' },
-      { status: 500 }
-    );
+  } catch (error) {
+    if (error instanceof ZodError) {
+      return handleValidationError(error);
+    }
+    console.error('[Artist Update Error]', error);
+    return apiError('INTERNAL_ERROR');
   }
 }

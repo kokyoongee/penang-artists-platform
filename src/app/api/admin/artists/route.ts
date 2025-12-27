@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient, getProfile } from '@/lib/supabase/server';
+import { adminActionSchema, adminArtistSchema } from '@/lib/validations/artist';
+import { apiError, handleValidationError } from '@/lib/api-error';
+import { checkRateLimit, getClientIP, rateLimitResponse } from '@/lib/rate-limit';
+import { ZodError } from 'zod';
 
 // Verify admin access
 async function verifyAdmin() {
@@ -10,22 +14,34 @@ async function verifyAdmin() {
   return profile;
 }
 
+// Generate slug from display name
+function generateSlug(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .trim();
+}
+
 // POST - Admin actions on artists (approve, reject, suspend, feature)
 export async function POST(request: NextRequest) {
   try {
+    // Rate limit check
+    const clientIP = getClientIP(request);
+    const rateLimitResult = await checkRateLimit(`admin-action:${clientIP}`, true);
+    if (!rateLimitResult.success) {
+      return rateLimitResponse(rateLimitResult);
+    }
+
     const admin = await verifyAdmin();
     if (!admin) {
-      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+      return apiError('FORBIDDEN');
     }
 
-    const { action, artistId, reason } = await request.json();
-
-    if (!action || !artistId) {
-      return NextResponse.json(
-        { error: 'Action and artistId required' },
-        { status: 400 }
-      );
-    }
+    // Parse and validate request body
+    const body = await request.json();
+    const { action, artistId, reason } = adminActionSchema.parse(body);
 
     const adminClient = createAdminClient();
 
@@ -43,7 +59,12 @@ export async function POST(request: NextRequest) {
           .select()
           .single();
 
-        if (error) throw error;
+        if (error) {
+          return apiError('INTERNAL_ERROR', undefined, {
+            operation: 'approve_artist',
+            supabaseError: error.message,
+          });
+        }
         return NextResponse.json({ artist: data, message: 'Artist approved' });
       }
 
@@ -60,7 +81,12 @@ export async function POST(request: NextRequest) {
           .select()
           .single();
 
-        if (error) throw error;
+        if (error) {
+          return apiError('INTERNAL_ERROR', undefined, {
+            operation: 'reject_artist',
+            supabaseError: error.message,
+          });
+        }
         return NextResponse.json({ artist: data, message: 'Artist rejected' });
       }
 
@@ -75,7 +101,12 @@ export async function POST(request: NextRequest) {
           .select()
           .single();
 
-        if (error) throw error;
+        if (error) {
+          return apiError('INTERNAL_ERROR', undefined, {
+            operation: 'suspend_artist',
+            supabaseError: error.message,
+          });
+        }
         return NextResponse.json({ artist: data, message: 'Artist suspended' });
       }
 
@@ -93,7 +124,12 @@ export async function POST(request: NextRequest) {
           .select()
           .single();
 
-        if (error) throw error;
+        if (error) {
+          return apiError('INTERNAL_ERROR', undefined, {
+            operation: 'feature_artist',
+            supabaseError: error.message,
+          });
+        }
         return NextResponse.json({
           artist: data,
           message: data?.featured ? 'Artist featured' : 'Artist unfeatured',
@@ -114,7 +150,12 @@ export async function POST(request: NextRequest) {
           .select()
           .single();
 
-        if (error) throw error;
+        if (error) {
+          return apiError('INTERNAL_ERROR', undefined, {
+            operation: 'verify_artist',
+            supabaseError: error.message,
+          });
+        }
         return NextResponse.json({
           artist: data,
           message: data?.verified ? 'Artist verified' : 'Artist unverified',
@@ -127,41 +168,45 @@ export async function POST(request: NextRequest) {
           .delete()
           .eq('id', artistId);
 
-        if (error) throw error;
+        if (error) {
+          return apiError('INTERNAL_ERROR', undefined, {
+            operation: 'delete_artist',
+            supabaseError: error.message,
+          });
+        }
         return NextResponse.json({ message: 'Artist deleted' });
       }
 
       default:
-        return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
+        return apiError('BAD_REQUEST', 'Invalid action');
     }
-  } catch (error: any) {
-    console.error('Admin action error:', error);
-    return NextResponse.json(
-      { error: error.message || 'Internal server error' },
-      { status: 500 }
-    );
+  } catch (error) {
+    if (error instanceof ZodError) {
+      return handleValidationError(error);
+    }
+    console.error('[Admin Action Error]', error);
+    return apiError('INTERNAL_ERROR');
   }
-}
-
-// Generate slug from display name
-function generateSlug(name: string): string {
-  return name
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
-    .trim();
 }
 
 // PUT - Create or update artist (admin can update any field)
 export async function PUT(request: NextRequest) {
   try {
-    const admin = await verifyAdmin();
-    if (!admin) {
-      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+    // Rate limit check
+    const clientIP = getClientIP(request);
+    const rateLimitResult = await checkRateLimit(`admin-update:${clientIP}`);
+    if (!rateLimitResult.success) {
+      return rateLimitResponse(rateLimitResult);
     }
 
-    const { id, ...artistData } = await request.json();
+    const admin = await verifyAdmin();
+    if (!admin) {
+      return apiError('FORBIDDEN');
+    }
+
+    // Parse and validate request body
+    const body = await request.json();
+    const { id, ...artistData } = adminArtistSchema.parse(body);
     const adminClient = createAdminClient();
 
     if (id) {
@@ -173,10 +218,19 @@ export async function PUT(request: NextRequest) {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        return apiError('INTERNAL_ERROR', undefined, {
+          operation: 'admin_update_artist',
+          supabaseError: error.message,
+        });
+      }
       return NextResponse.json({ artist: data });
     } else {
       // Create new artist (admin-created, no user_id required)
+      if (!artistData.display_name) {
+        return apiError('BAD_REQUEST', 'Display name is required');
+      }
+
       const baseSlug = generateSlug(artistData.display_name);
       let slug = baseSlug;
 
@@ -199,14 +253,19 @@ export async function PUT(request: NextRequest) {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        return apiError('INTERNAL_ERROR', undefined, {
+          operation: 'admin_create_artist',
+          supabaseError: error.message,
+        });
+      }
       return NextResponse.json({ artist: data });
     }
-  } catch (error: any) {
-    console.error('Admin update error:', error);
-    return NextResponse.json(
-      { error: error.message || 'Internal server error' },
-      { status: 500 }
-    );
+  } catch (error) {
+    if (error instanceof ZodError) {
+      return handleValidationError(error);
+    }
+    console.error('[Admin Update Error]', error);
+    return apiError('INTERNAL_ERROR');
   }
 }
