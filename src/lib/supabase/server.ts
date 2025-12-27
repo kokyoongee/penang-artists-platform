@@ -1,6 +1,22 @@
 import { createServerClient as createSupabaseServerClient } from '@supabase/ssr';
+import { createClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
 import { Database, Profile } from './types';
+
+// Admin client with service role key - bypasses RLS
+// Using untyped client for flexibility with admin operations
+export function createAdminClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
+    }
+  );
+}
 
 export async function createServerClient() {
   const cookieStore = await cookies();

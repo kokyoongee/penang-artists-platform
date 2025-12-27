@@ -15,7 +15,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { ImageUpload } from '@/components/admin/ImageUpload';
-import { createUntypedClient } from '@/lib/supabase/client';
 import {
   Profile,
   Artist,
@@ -113,70 +112,36 @@ export function ArtistProfileForm({ profile, artist }: ArtistProfileFormProps) {
     setIsSaved(false);
   };
 
-  const generateSlug = (name: string) => {
-    return name
-      .toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, '')
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-')
-      .trim();
-  };
-
   const handleSubmit = async (e: React.FormEvent, submitForReview = false) => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
 
     try {
-      const supabase = createUntypedClient();
-
       // Parse styles from comma-separated input
       const styles = stylesInput
         .split(',')
         .map((s) => s.trim())
         .filter(Boolean);
 
-      // Generate slug from display name
-      const baseSlug = generateSlug(formData.display_name);
-      let slug = baseSlug;
-
-      // Only check for unique slug when creating new artist
-      if (!artist) {
-        // Check if slug exists, add random suffix if needed
-        const { data: existing } = await supabase
-          .from('artists')
-          .select('slug')
-          .eq('slug', baseSlug)
-          .single();
-
-        if (existing) {
-          slug = `${baseSlug}-${Math.random().toString(36).substring(2, 6)}`;
-        }
-      }
-
       const artistData = {
         ...formData,
         styles,
-        slug: artist?.slug || slug, // Keep existing slug on update
-        user_id: profile.id,
+        display_name: formData.display_name,
         status: submitForReview ? 'pending' : (artist?.status || 'draft'),
+        ...(artist && { id: artist.id }), // Include ID for updates
       };
 
-      if (artist) {
-        // Update existing artist
-        const { error: updateError } = await supabase
-          .from('artists')
-          .update(artistData)
-          .eq('id', artist.id);
+      const response = await fetch('/api/artists', {
+        method: artist ? 'PUT' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(artistData),
+      });
 
-        if (updateError) throw updateError;
-      } else {
-        // Create new artist
-        const { error: insertError } = await supabase
-          .from('artists')
-          .insert(artistData);
+      const data = await response.json();
 
-        if (insertError) throw insertError;
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to save profile');
       }
 
       setIsSaved(true);

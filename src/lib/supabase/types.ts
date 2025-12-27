@@ -1,5 +1,5 @@
 // Database types generated from schema
-export type ArtistStatus = 'draft' | 'pending' | 'approved' | 'suspended';
+export type ArtistStatus = 'draft' | 'pending' | 'approved' | 'rejected' | 'suspended';
 export type ExperienceLevel = 'emerging' | 'established' | 'master';
 export type PriceRange = 'budget' | 'mid' | 'premium' | 'contact';
 export type MediumCategory =

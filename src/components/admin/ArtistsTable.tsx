@@ -32,7 +32,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { createUntypedClient } from '@/lib/supabase/client';
 import { Artist } from '@/lib/supabase/types';
 
 interface ArtistsTableProps {
@@ -56,43 +55,75 @@ export function ArtistsTable({ artists }: ArtistsTableProps) {
   const [isDeleting, setIsDeleting] = useState(false);
 
   const handleStatusChange = async (artist: Artist, newStatus: 'approved' | 'suspended') => {
-    const supabase = createUntypedClient();
+    try {
+      const response = await fetch('/api/admin/artists', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: newStatus === 'approved' ? 'approve' : 'suspend',
+          artistId: artist.id,
+        }),
+      });
 
-    const updateData: any = { status: newStatus };
-    if (newStatus === 'approved') {
-      updateData.approved_at = new Date().toISOString();
+      if (!response.ok) {
+        const data = await response.json();
+        console.error('Admin action failed:', data.error);
+      }
+
+      router.refresh();
+    } catch (error) {
+      console.error('Admin action error:', error);
     }
-
-    await supabase
-      .from('artists')
-      .update(updateData)
-      .eq('id', artist.id);
-
-    router.refresh();
   };
 
   const handleToggleFeatured = async (artist: Artist) => {
-    const supabase = createUntypedClient();
+    try {
+      const response = await fetch('/api/admin/artists', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'feature',
+          artistId: artist.id,
+        }),
+      });
 
-    await supabase
-      .from('artists')
-      .update({ featured: !artist.featured })
-      .eq('id', artist.id);
+      if (!response.ok) {
+        const data = await response.json();
+        console.error('Feature toggle failed:', data.error);
+      }
 
-    router.refresh();
+      router.refresh();
+    } catch (error) {
+      console.error('Feature toggle error:', error);
+    }
   };
 
   const handleDelete = async () => {
     if (!deleteArtist) return;
 
     setIsDeleting(true);
-    const supabase = createUntypedClient();
+    try {
+      const response = await fetch('/api/admin/artists', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'delete',
+          artistId: deleteArtist.id,
+        }),
+      });
 
-    await supabase.from('artists').delete().eq('id', deleteArtist.id);
+      if (!response.ok) {
+        const data = await response.json();
+        console.error('Delete failed:', data.error);
+      }
 
-    setIsDeleting(false);
-    setDeleteArtist(null);
-    router.refresh();
+      setDeleteArtist(null);
+      router.refresh();
+    } catch (error) {
+      console.error('Delete error:', error);
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   if (artists.length === 0) {

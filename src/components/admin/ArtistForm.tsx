@@ -16,7 +16,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { createUntypedClient } from '@/lib/supabase/client';
 import { ImageUpload } from './ImageUpload';
 import {
   Artist,
@@ -131,59 +130,52 @@ export function ArtistForm({ artist, isEditing = false }: ArtistFormProps) {
     setError('');
     setIsSubmitting(true);
 
-    const supabase = createUntypedClient();
+    try {
+      const baseData = {
+        display_name: formData.display_name,
+        email: formData.email,
+        tagline: formData.tagline || null,
+        bio: formData.bio,
+        location: formData.location as LocationArea,
+        primary_medium: formData.primary_medium as MediumCategory,
+        secondary_mediums: formData.secondary_mediums as MediumCategory[],
+        styles: formData.styles,
+        experience: (formData.experience as ExperienceLevel) || null,
+        profile_photo: formData.profile_photo || null,
+        featured_image: formData.featured_image || null,
+        whatsapp: formData.whatsapp || null,
+        whatsapp_public: formData.whatsapp_public,
+        instagram: formData.instagram || null,
+        facebook: formData.facebook || null,
+        website: formData.website || null,
+        open_for_commissions: formData.open_for_commissions,
+        open_for_collaboration: formData.open_for_collaboration,
+        open_for_events: formData.open_for_events,
+        price_range: formData.price_range as PriceRange,
+        status: formData.status as ArtistStatus,
+        featured: formData.featured,
+        verified: formData.verified,
+        ...(isEditing && artist && { id: artist.id }),
+      };
 
-    const baseData = {
-      display_name: formData.display_name,
-      email: formData.email,
-      tagline: formData.tagline || null,
-      bio: formData.bio,
-      location: formData.location as LocationArea,
-      primary_medium: formData.primary_medium as MediumCategory,
-      secondary_mediums: formData.secondary_mediums as MediumCategory[],
-      styles: formData.styles,
-      experience: (formData.experience as ExperienceLevel) || null,
-      profile_photo: formData.profile_photo || null,
-      featured_image: formData.featured_image || null,
-      whatsapp: formData.whatsapp || null,
-      whatsapp_public: formData.whatsapp_public,
-      instagram: formData.instagram || null,
-      facebook: formData.facebook || null,
-      website: formData.website || null,
-      open_for_commissions: formData.open_for_commissions,
-      open_for_collaboration: formData.open_for_collaboration,
-      open_for_events: formData.open_for_events,
-      price_range: formData.price_range as PriceRange,
-      status: formData.status as ArtistStatus,
-      featured: formData.featured,
-      verified: formData.verified,
-    };
+      const response = await fetch('/api/admin/artists', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(baseData),
+      });
 
-    if (isEditing && artist) {
-      const { error: updateError } = await supabase
-        .from('artists')
-        .update(baseData)
-        .eq('id', artist.id);
+      const data = await response.json();
 
-      if (updateError) {
-        setError(updateError.message);
-        setIsSubmitting(false);
-        return;
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to save artist');
       }
-    } else {
-      const { error: insertError } = await supabase
-        .from('artists')
-        .insert(baseData);
 
-      if (insertError) {
-        setError(insertError.message);
-        setIsSubmitting(false);
-        return;
-      }
+      router.push('/admin/artists');
+      router.refresh();
+    } catch (err: any) {
+      setError(err.message || 'Failed to save artist');
+      setIsSubmitting(false);
     }
-
-    router.push('/admin/artists');
-    router.refresh();
   };
 
   return (
