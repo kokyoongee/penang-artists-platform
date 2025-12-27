@@ -44,7 +44,7 @@ export default function HomePage() {
         {/* Background Image */}
         <div className="absolute inset-0">
           <Image
-            src="/images/hero-penang-art.jpg"
+            src="/images/hero-street-art.png"
             alt="Penang Street Art"
             fill
             className="object-cover"
