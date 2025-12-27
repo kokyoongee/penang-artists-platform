@@ -157,7 +157,7 @@ export default function HomePage() {
             {/* Card 2 */}
             <div className="relative rounded-3xl overflow-hidden min-h-[240px] group">
               <Image
-                src="https://images.unsplash.com/photo-1531058020387-3be344556be6?w=800&h=500&fit=crop"
+                src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&h=500&fit=crop"
                 alt="Artists connecting"
                 fill
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
@@ -175,7 +175,7 @@ export default function HomePage() {
             {/* Card 3 */}
             <div className="relative rounded-3xl overflow-hidden min-h-[240px] group">
               <Image
-                src="https://images.unsplash.com/photo-1571115764595-644a1f56a55c?w=800&h=500&fit=crop"
+                src="https://images.unsplash.com/photo-1536924940846-227afb31e2a5?w=800&h=500&fit=crop"
                 alt="Art discovery"
                 fill
                 className="object-cover transition-transform duration-500 group-hover:scale-105"

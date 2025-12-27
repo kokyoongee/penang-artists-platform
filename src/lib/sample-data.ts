@@ -83,7 +83,7 @@ export const sampleArtists: Artist[] = [
     secondary_mediums: ['illustration'],
     styles: ['Urban', 'Contemporary', 'Folk'],
     experience: 'established',
-    featured_image: 'https://images.unsplash.com/photo-1499781350541-7783f6c6a0c8?w=800&h=600&fit=crop',
+    featured_image: 'https://images.unsplash.com/photo-1561059488-916d69792237?w=800&h=600&fit=crop',
     video_url: null,
     audio_url: null,
     whatsapp: '60112223344',
