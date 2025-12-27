@@ -1,0 +1,134 @@
+/* Brand Fonts - must be first */
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400&family=DM+Sans:wght@400;500;600&display=swap');
+
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: 'DM Sans', -apple-system, sans-serif;
+  --font-display: 'Fraunces', Georgia, serif;
+
+  /* Brand Colors */
+  --color-cream: #FDF6E9;
+  --color-warm-white: #FFFCF7;
+  --color-ochre: #D4A853;
+  --color-terracotta: #C75B3F;
+  --color-teal: #2A6B6B;
+  --color-deep-teal: #1D4E4E;
+  --color-charcoal: #2C2C2C;
+  --color-soft-black: #1A1A1A;
+
+  /* Shadcn mappings */
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+}
+
+:root {
+  --radius: 0.625rem;
+  /* Penang Artists Brand - Light Mode (Default) */
+  --background: #FDF6E9;
+  --foreground: #2C2C2C;
+  --card: #FFFCF7;
+  --card-foreground: #2C2C2C;
+  --popover: #FFFCF7;
+  --popover-foreground: #2C2C2C;
+  --primary: #2A6B6B;
+  --primary-foreground: #FFFCF7;
+  --secondary: #FDF6E9;
+  --secondary-foreground: #1D4E4E;
+  --muted: #FDF6E9;
+  --muted-foreground: #666666;
+  --accent: #D4A853;
+  --accent-foreground: #1A1A1A;
+  --destructive: #C75B3F;
+  --border: rgba(0, 0, 0, 0.08);
+  --input: rgba(0, 0, 0, 0.08);
+  --ring: #2A6B6B;
+  --chart-1: #2A6B6B;
+  --chart-2: #D4A853;
+  --chart-3: #C75B3F;
+  --chart-4: #1D4E4E;
+  --chart-5: #FDF6E9;
+  --sidebar: #FFFCF7;
+  --sidebar-foreground: #2C2C2C;
+  --sidebar-primary: #2A6B6B;
+  --sidebar-primary-foreground: #FFFCF7;
+  --sidebar-accent: #FDF6E9;
+  --sidebar-accent-foreground: #1D4E4E;
+  --sidebar-border: rgba(0, 0, 0, 0.08);
+  --sidebar-ring: #2A6B6B;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'DM Sans', -apple-system, sans-serif;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Fraunces', Georgia, serif;
+  }
+}
+
+/* Utility classes for brand */
+.font-display {
+  font-family: 'Fraunces', Georgia, serif;
+}
+
+.font-body {
+  font-family: 'DM Sans', -apple-system, sans-serif;
+}
+
+/* Decorative background pattern */
+.pattern-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0L60 30L30 60L0 30L30 0z' fill='%232A6B6B' fill-opacity='1'/%3E%3C/svg%3E");
+  background-size: 60px 60px;
+  z-index: -1;
+}
