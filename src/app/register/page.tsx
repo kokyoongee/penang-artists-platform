@@ -41,19 +41,27 @@ export default function RegisterPage() {
     try {
       const supabase = createClient();
 
-      const { error: signUpError } = await supabase.auth.signUp({
+      const { data, error: signUpError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
         options: {
           data: {
             full_name: formData.fullName,
-            role: 'artist',
           },
         },
       });
 
       if (signUpError) {
+        // Provide more specific error messages
+        if (signUpError.message.includes('already registered')) {
+          throw new Error('This email is already registered. Please sign in instead.');
+        }
         throw signUpError;
+      }
+
+      // Check if user was created (might fail silently if email confirmation disabled)
+      if (!data.user) {
+        throw new Error('Failed to create account. Please try again.');
       }
 
       setSuccess(true);

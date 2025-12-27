@@ -79,10 +79,10 @@ export default function HomePage() {
         <div className="relative z-10 mt-12 max-w-4xl w-full px-4">
           <div className="relative rounded-2xl overflow-hidden shadow-2xl">
             <Image
-              src="https://images.unsplash.com/photo-1499781350541-7783f6c6a0c8?w=1920&h=1080&fit=crop"
+              src="https://images.unsplash.com/photo-1561214115-f2f134cc4912?w=1200&h=675&fit=crop"
               alt="Penang Street Art"
-              width={1920}
-              height={1080}
+              width={1200}
+              height={675}
               className="w-full h-auto"
               priority
             />
