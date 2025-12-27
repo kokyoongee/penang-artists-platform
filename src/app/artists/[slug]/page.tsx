@@ -3,26 +3,61 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowLeft, MapPin, Mail, ExternalLink, CheckCircle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { ContactForm } from '@/components/artists/ContactForm';
 import { PortfolioGallery } from '@/components/artists/PortfolioGallery';
-import { getArtistBySlug, getPortfolioItems } from '@/lib/sample-data';
-import { MEDIUM_LABELS, LOCATION_LABELS } from '@/types';
+import { createServerClient } from '@/lib/supabase/server';
+import { Artist, PortfolioItem, MEDIUM_LABELS, LOCATION_LABELS } from '@/types';
 
 interface ArtistProfilePageProps {
   params: Promise<{ slug: string }>;
 }
 
+export const revalidate = 60; // Revalidate every 60 seconds
+
+async function getArtistBySlug(slug: string): Promise<Artist | null> {
+  const supabase = await createServerClient();
+
+  const { data, error } = await supabase
+    .from('artists')
+    .select('*')
+    .eq('slug', slug)
+    .eq('status', 'approved')
+    .single();
+
+  if (error || !data) {
+    return null;
+  }
+
+  return data as Artist;
+}
+
+async function getPortfolioItems(artistId: string): Promise<PortfolioItem[]> {
+  const supabase = await createServerClient();
+
+  const { data, error } = await supabase
+    .from('portfolio_items')
+    .select('*')
+    .eq('artist_id', artistId)
+    .order('sort_order', { ascending: true });
+
+  if (error) {
+    console.error('Error fetching portfolio:', error);
+    return [];
+  }
+
+  return (data as PortfolioItem[]) || [];
+}
+
 export default async function ArtistProfilePage({ params }: ArtistProfilePageProps) {
   const { slug } = await params;
-  const artist = getArtistBySlug(slug);
+  const artist = await getArtistBySlug(slug);
 
   if (!artist) {
     notFound();
   }
 
-  const portfolioItems = getPortfolioItems(artist.id);
+  const portfolioItems = await getPortfolioItems(artist.id);
 
   return (
     <div className="min-h-screen bg-[var(--color-cream)]">
@@ -149,7 +184,7 @@ export default async function ArtistProfilePage({ params }: ArtistProfilePagePro
                 </p>
 
                 {/* Styles */}
-                {artist.styles.length > 0 && (
+                {artist.styles && artist.styles.length > 0 && (
                   <div className="mt-6 flex flex-wrap gap-2">
                     {artist.styles.map((style) => (
                       <span

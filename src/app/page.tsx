@@ -1,11 +1,14 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight, Palette, Users, Sparkles, Gift, ChevronDown } from 'lucide-react';
+import { ArrowRight, Palette, Users, Sparkles, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ArtistCard } from '@/components/artists/ArtistCard';
-import { getFeaturedArtists } from '@/lib/sample-data';
+import { createServerClient } from '@/lib/supabase/server';
+import { Artist } from '@/types';
 
-// Sample stories for preview
+export const revalidate = 60; // Revalidate every 60 seconds
+
+// Sample stories for preview (can be moved to DB later)
 const featuredStories = [
   {
     id: 1,
@@ -34,8 +37,27 @@ const featuredStories = [
   },
 ];
 
-export default function HomePage() {
-  const featuredArtists = getFeaturedArtists(4);
+async function getFeaturedArtists(): Promise<Artist[]> {
+  const supabase = await createServerClient();
+
+  const { data, error } = await supabase
+    .from('artists')
+    .select('*')
+    .eq('status', 'approved')
+    .eq('featured', true)
+    .order('created_at', { ascending: false })
+    .limit(4);
+
+  if (error) {
+    console.error('Error fetching featured artists:', error);
+    return [];
+  }
+
+  return (data as Artist[]) || [];
+}
+
+export default async function HomePage() {
+  const featuredArtists = await getFeaturedArtists();
 
   return (
     <div>
@@ -234,11 +256,24 @@ export default function HomePage() {
           </div>
 
           {/* Artists Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {featuredArtists.map((artist) => (
-              <ArtistCard key={artist.id} artist={artist} />
-            ))}
-          </div>
+          {featuredArtists.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {featuredArtists.map((artist) => (
+                <ArtistCard key={artist.id} artist={artist} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12 bg-[var(--color-warm-white)] rounded-2xl">
+              <p className="text-[var(--color-charcoal)]/60">
+                Featured artists coming soon. Be the first to join!
+              </p>
+              <Link href="/register">
+                <Button className="mt-4 bg-[var(--color-teal)] hover:bg-[var(--color-deep-teal)] text-white">
+                  Register Now
+                </Button>
+              </Link>
+            </div>
+          )}
         </div>
       </section>
 
