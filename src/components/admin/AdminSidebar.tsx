@@ -45,13 +45,13 @@ export function AdminSidebar() {
             <Link
               key={item.name}
               href={item.href}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+              className={`group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ease-out ${
                 isActive
-                  ? 'bg-[var(--color-teal)] text-white'
-                  : 'text-white/70 hover:bg-white/10 hover:text-white'
+                  ? 'bg-[var(--color-teal)] text-white shadow-lg shadow-[var(--color-teal)]/20'
+                  : 'text-white/70 hover:bg-white/10 hover:text-white hover:translate-x-1'
               }`}
             >
-              <item.icon className="w-5 h-5" />
+              <item.icon className={`w-5 h-5 transition-transform duration-200 ${!isActive && 'group-hover:scale-110'}`} />
               {item.name}
             </Link>
           );
