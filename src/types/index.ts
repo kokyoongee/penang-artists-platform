@@ -196,3 +196,69 @@ export const PRICE_TYPE_LABELS: Record<PriceType, string> = {
   'hourly': 'Per Hour',
   'quote': 'Contact for Quote',
 };
+
+// Event types
+export type EventType =
+  | 'exhibition'
+  | 'workshop'
+  | 'performance'
+  | 'talk'
+  | 'market'
+  | 'opening'
+  | 'meetup'
+  | 'other';
+
+export interface Event {
+  id: string;
+  artist_id: string;
+  title: string;
+  description: string | null;
+  event_type: EventType;
+  start_date: string;
+  end_date: string | null;
+  is_all_day: boolean;
+  venue: string | null;
+  address: string | null;
+  location: Location | null;
+  image_url: string | null;
+  ticket_url: string | null;
+  is_free: boolean;
+  price_info: string | null;
+  is_published: boolean;
+  is_featured: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+// Extended event with artist info for public listings
+export interface EventWithArtist extends Event {
+  artist: {
+    id: string;
+    slug: string;
+    display_name: string;
+    profile_photo: string | null;
+    primary_medium: MediumCategory;
+  };
+}
+
+export const EVENT_TYPE_LABELS: Record<EventType, string> = {
+  'exhibition': 'Exhibition',
+  'workshop': 'Workshop',
+  'performance': 'Performance',
+  'talk': 'Talk / Lecture',
+  'market': 'Art Market',
+  'opening': 'Opening Night',
+  'meetup': 'Artist Meetup',
+  'other': 'Other',
+};
+
+export const EVENT_TYPE_ICONS: Record<EventType, string> = {
+  'exhibition': '🖼️',
+  'workshop': '🎨',
+  'performance': '🎭',
+  'talk': '🎤',
+  'market': '🛍️',
+  'opening': '🥂',
+  'meetup': '👥',
+  'other': '📅',
+};

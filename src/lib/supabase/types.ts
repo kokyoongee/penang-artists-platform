@@ -39,6 +39,15 @@ export type ServiceType =
   | 'merchandise'
   | 'other';
 export type PriceType = 'fixed' | 'from' | 'range' | 'hourly' | 'quote';
+export type EventType =
+  | 'exhibition'
+  | 'workshop'
+  | 'performance'
+  | 'talk'
+  | 'market'
+  | 'opening'
+  | 'meetup'
+  | 'other';
 
 export interface Database {
   public: {
@@ -334,6 +343,71 @@ export interface Database {
           updated_at?: string;
         };
       };
+      events: {
+        Row: {
+          id: string;
+          artist_id: string;
+          title: string;
+          description: string | null;
+          event_type: EventType;
+          start_date: string;
+          end_date: string | null;
+          is_all_day: boolean;
+          venue: string | null;
+          address: string | null;
+          location: LocationArea | null;
+          image_url: string | null;
+          ticket_url: string | null;
+          is_free: boolean;
+          price_info: string | null;
+          is_published: boolean;
+          is_featured: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          artist_id: string;
+          title: string;
+          description?: string | null;
+          event_type?: EventType;
+          start_date: string;
+          end_date?: string | null;
+          is_all_day?: boolean;
+          venue?: string | null;
+          address?: string | null;
+          location?: LocationArea | null;
+          image_url?: string | null;
+          ticket_url?: string | null;
+          is_free?: boolean;
+          price_info?: string | null;
+          is_published?: boolean;
+          is_featured?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          artist_id?: string;
+          title?: string;
+          description?: string | null;
+          event_type?: EventType;
+          start_date?: string;
+          end_date?: string | null;
+          is_all_day?: boolean;
+          venue?: string | null;
+          address?: string | null;
+          location?: LocationArea | null;
+          image_url?: string | null;
+          ticket_url?: string | null;
+          is_free?: boolean;
+          price_info?: string | null;
+          is_published?: boolean;
+          is_featured?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
     };
     Enums: {
       artist_status: ArtistStatus;
@@ -345,6 +419,7 @@ export interface Database {
       user_role: UserRole;
       service_type: ServiceType;
       price_type: PriceType;
+      event_type: EventType;
     };
   };
 }
@@ -361,3 +436,6 @@ export type Profile = Database['public']['Tables']['profiles']['Row'];
 export type Service = Database['public']['Tables']['services']['Row'];
 export type ServiceInsert = Database['public']['Tables']['services']['Insert'];
 export type ServiceUpdate = Database['public']['Tables']['services']['Update'];
+export type Event = Database['public']['Tables']['events']['Row'];
+export type EventInsert = Database['public']['Tables']['events']['Insert'];
+export type EventUpdate = Database['public']['Tables']['events']['Update'];

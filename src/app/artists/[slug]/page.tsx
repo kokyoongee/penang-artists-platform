@@ -1,14 +1,15 @@
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowLeft, MapPin, Mail, ExternalLink, CheckCircle, Phone, DollarSign, Award } from 'lucide-react';
+import { ArrowLeft, MapPin, Mail, ExternalLink, CheckCircle, Phone, DollarSign, Award, Calendar } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { ContactForm } from '@/components/artists/ContactForm';
 import { PortfolioGallery } from '@/components/artists/PortfolioGallery';
 import { ServicesSection } from '@/components/artists/ServicesSection';
+import { UpcomingEventsSection } from '@/components/artists/UpcomingEventsSection';
 import { createServerClient } from '@/lib/supabase/server';
-import { Artist, PortfolioItem, Service, MEDIUM_LABELS, LOCATION_LABELS, PRICE_RANGE_LABELS, EXPERIENCE_LABELS } from '@/types';
+import { Artist, PortfolioItem, Service, Event, MEDIUM_LABELS, LOCATION_LABELS, PRICE_RANGE_LABELS, EXPERIENCE_LABELS } from '@/types';
 
 interface ArtistProfilePageProps {
   params: Promise<{ slug: string }>;
@@ -69,6 +70,29 @@ async function getServices(artistId: string): Promise<Service[]> {
   return (data as Service[]) || [];
 }
 
+async function getUpcomingEvents(artistId: string): Promise<Event[]> {
+  const supabase = await createServerClient();
+
+  const now = new Date().toISOString();
+
+  // Using type assertion since table may not exist yet
+  const { data, error } = await (supabase as any)
+    .from('events')
+    .select('*')
+    .eq('artist_id', artistId)
+    .eq('is_published', true)
+    .gte('start_date', now)
+    .order('start_date', { ascending: true })
+    .limit(3);
+
+  if (error) {
+    // Table may not exist yet, silently return empty array
+    return [];
+  }
+
+  return (data as Event[]) || [];
+}
+
 export default async function ArtistProfilePage({ params }: ArtistProfilePageProps) {
   const { slug } = await params;
   const artist = await getArtistBySlug(slug);
@@ -77,9 +101,10 @@ export default async function ArtistProfilePage({ params }: ArtistProfilePagePro
     notFound();
   }
 
-  const [portfolioItems, services] = await Promise.all([
+  const [portfolioItems, services, upcomingEvents] = await Promise.all([
     getPortfolioItems(artist.id),
     getServices(artist.id),
+    getUpcomingEvents(artist.id),
   ]);
 
   return (
@@ -228,6 +253,17 @@ export default async function ArtistProfilePage({ params }: ArtistProfilePagePro
                     Services & Offerings
                   </h2>
                   <ServicesSection services={services} />
+                </div>
+              )}
+
+              {/* Upcoming Events */}
+              {upcomingEvents.length > 0 && (
+                <div>
+                  <h2 className="font-display text-2xl font-semibold text-[var(--color-charcoal)] mb-6 flex items-center gap-2">
+                    <Calendar className="w-6 h-6 text-[var(--color-terracotta)]" />
+                    Upcoming Events
+                  </h2>
+                  <UpcomingEventsSection events={upcomingEvents} artistSlug={artist.slug} />
                 </div>
               )}
 
