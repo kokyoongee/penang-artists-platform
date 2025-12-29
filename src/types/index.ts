@@ -131,3 +131,16 @@ export const INQUIRY_TYPE_LABELS: Record<InquiryType, string> = {
   'event': 'Event/Exhibition Invitation',
   'general': 'General Inquiry',
 };
+
+export const PRICE_RANGE_LABELS: Record<PriceRange, string> = {
+  'budget': 'Budget-friendly',
+  'mid': 'Mid-range',
+  'premium': 'Premium',
+  'contact': 'Contact for pricing',
+};
+
+export const EXPERIENCE_LABELS: Record<ExperienceLevel, string> = {
+  'emerging': 'Emerging Artist',
+  'established': 'Established Artist',
+  'master': 'Master Artist',
+};

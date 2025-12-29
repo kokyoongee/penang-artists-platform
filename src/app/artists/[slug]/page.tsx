@@ -1,13 +1,13 @@
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowLeft, MapPin, Mail, ExternalLink, CheckCircle } from 'lucide-react';
+import { ArrowLeft, MapPin, Mail, ExternalLink, CheckCircle, Phone, DollarSign, Award } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { ContactForm } from '@/components/artists/ContactForm';
 import { PortfolioGallery } from '@/components/artists/PortfolioGallery';
 import { createServerClient } from '@/lib/supabase/server';
-import { Artist, PortfolioItem, MEDIUM_LABELS, LOCATION_LABELS } from '@/types';
+import { Artist, PortfolioItem, MEDIUM_LABELS, LOCATION_LABELS, PRICE_RANGE_LABELS, EXPERIENCE_LABELS } from '@/types';
 
 interface ArtistProfilePageProps {
   params: Promise<{ slug: string }>;
@@ -211,13 +211,43 @@ export default async function ArtistProfilePage({ params }: ArtistProfilePagePro
 
             {/* Right Column - Contact */}
             <div className="space-y-6">
+              {/* Quick Info Card */}
+              {(artist.experience || artist.price_range) && (
+                <div className="bg-[var(--color-warm-white)] rounded-2xl p-6 shadow-sm mb-6">
+                  <div className="space-y-4">
+                    {artist.experience && (
+                      <div className="flex items-center gap-3">
+                        <Award className="w-5 h-5 text-[var(--color-ochre)]" />
+                        <div>
+                          <p className="text-xs text-[var(--color-charcoal)]/50 uppercase tracking-wide">Experience</p>
+                          <p className="text-sm font-medium text-[var(--color-charcoal)]">
+                            {EXPERIENCE_LABELS[artist.experience]}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                    {artist.price_range && artist.price_range !== 'contact' && (
+                      <div className="flex items-center gap-3">
+                        <DollarSign className="w-5 h-5 text-[var(--color-teal)]" />
+                        <div>
+                          <p className="text-xs text-[var(--color-charcoal)]/50 uppercase tracking-wide">Price Range</p>
+                          <p className="text-sm font-medium text-[var(--color-charcoal)]">
+                            {PRICE_RANGE_LABELS[artist.price_range]}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
               {/* Contact Card */}
               <div className="bg-[var(--color-warm-white)] rounded-2xl p-6 shadow-sm sticky top-28">
                 <h3 className="font-display text-xl font-semibold text-[var(--color-charcoal)] mb-4">
                   Get in Touch
                 </h3>
 
-                {/* Social Links */}
+                {/* Contact & Social Links */}
                 <div className="space-y-3 mb-6">
                   <a
                     href={`mailto:${artist.email}`}
@@ -226,6 +256,18 @@ export default async function ArtistProfilePage({ params }: ArtistProfilePagePro
                     <Mail className="w-5 h-5" />
                     <span className="text-sm">{artist.email}</span>
                   </a>
+
+                  {artist.whatsapp && artist.whatsapp_public && (
+                    <a
+                      href={`https://wa.me/${artist.whatsapp.replace(/\D/g, '')}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 text-[var(--color-charcoal)] hover:text-[var(--color-teal)] transition-colors"
+                    >
+                      <Phone className="w-5 h-5" />
+                      <span className="text-sm">WhatsApp</span>
+                    </a>
+                  )}
 
                   {artist.instagram && (
                     <a
