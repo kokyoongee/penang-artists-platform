@@ -79,11 +79,17 @@ export const artistUpdateSchema = artistSchema.partial().extend({
   id: z.string().uuid('Invalid artist ID'),
 });
 
-// For admin actions
+// For admin actions (single artist)
 export const adminActionSchema = z.object({
   action: z.enum(['approve', 'reject', 'suspend', 'feature', 'verify', 'delete']),
   artistId: z.string().uuid('Invalid artist ID'),
   reason: z.string().max(500).optional(),
+});
+
+// For admin bulk actions (multiple artists)
+export const adminBulkActionSchema = z.object({
+  action: z.enum(['bulk-approve', 'bulk-suspend', 'bulk-feature']),
+  artistIds: z.array(z.string().uuid('Invalid artist ID')).min(1).max(50),
 });
 
 // Admin create/update (can set any field including status)

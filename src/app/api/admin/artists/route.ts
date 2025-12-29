@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient, getProfile } from '@/lib/supabase/server';
-import { adminActionSchema, adminArtistSchema } from '@/lib/validations/artist';
+import { adminActionSchema, adminBulkActionSchema, adminArtistSchema } from '@/lib/validations/artist';
 import { apiError, handleValidationError } from '@/lib/api-error';
 import { checkRateLimit, getClientIP, rateLimitResponse } from '@/lib/rate-limit';
 import { ZodError } from 'zod';
@@ -41,9 +41,74 @@ export async function POST(request: NextRequest) {
 
     // Parse and validate request body
     const body = await request.json();
-    const { action, artistId, reason } = adminActionSchema.parse(body);
-
     const adminClient = createAdminClient();
+
+    // Check if this is a bulk action
+    if (body.action?.startsWith('bulk-')) {
+      const { action, artistIds } = adminBulkActionSchema.parse(body);
+
+      switch (action) {
+        case 'bulk-approve': {
+          const { error } = await adminClient
+            .from('artists')
+            .update({
+              status: 'approved',
+              approved_at: new Date().toISOString(),
+              approved_by: admin.id,
+              rejection_reason: null,
+            })
+            .in('id', artistIds);
+
+          if (error) {
+            return apiError('INTERNAL_ERROR', undefined, {
+              operation: 'bulk_approve_artists',
+              supabaseError: error.message,
+            });
+          }
+          return NextResponse.json({ message: `${artistIds.length} artists approved` });
+        }
+
+        case 'bulk-suspend': {
+          const { error } = await adminClient
+            .from('artists')
+            .update({
+              status: 'suspended',
+              rejection_reason: 'Bulk suspended by admin',
+            })
+            .in('id', artistIds);
+
+          if (error) {
+            return apiError('INTERNAL_ERROR', undefined, {
+              operation: 'bulk_suspend_artists',
+              supabaseError: error.message,
+            });
+          }
+          return NextResponse.json({ message: `${artistIds.length} artists suspended` });
+        }
+
+        case 'bulk-feature': {
+          // Toggle featured status - set all to featured
+          const { error } = await adminClient
+            .from('artists')
+            .update({ featured: true })
+            .in('id', artistIds);
+
+          if (error) {
+            return apiError('INTERNAL_ERROR', undefined, {
+              operation: 'bulk_feature_artists',
+              supabaseError: error.message,
+            });
+          }
+          return NextResponse.json({ message: `${artistIds.length} artists featured` });
+        }
+
+        default:
+          return apiError('BAD_REQUEST', 'Invalid bulk action');
+      }
+    }
+
+    // Single artist action
+    const { action, artistId, reason } = adminActionSchema.parse(body);
 
     switch (action) {
       case 'approve': {

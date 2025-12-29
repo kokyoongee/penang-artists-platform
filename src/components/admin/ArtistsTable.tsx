@@ -33,6 +33,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Artist } from '@/lib/supabase/types';
+import { AdminToolbar } from './AdminToolbar';
 
 interface ArtistsTableProps {
   artists: Artist[];
@@ -53,6 +54,58 @@ export function ArtistsTable({ artists }: ArtistsTableProps) {
   const router = useRouter();
   const [deleteArtist, setDeleteArtist] = useState<Artist | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const toggleSelect = (id: string) => {
+    const newSelected = new Set(selectedIds);
+    if (newSelected.has(id)) {
+      newSelected.delete(id);
+    } else {
+      newSelected.add(id);
+    }
+    setSelectedIds(newSelected);
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.size === artists.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(artists.map((a) => a.id)));
+    }
+  };
+
+  const clearSelection = () => {
+    setSelectedIds(new Set());
+  };
+
+  const handleBulkAction = async (action: 'approve' | 'suspend' | 'feature') => {
+    if (selectedIds.size === 0) return;
+
+    setIsProcessing(true);
+    try {
+      const response = await fetch('/api/admin/artists', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: action === 'approve' ? 'bulk-approve' : action === 'suspend' ? 'bulk-suspend' : 'bulk-feature',
+          artistIds: Array.from(selectedIds),
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        console.error('Bulk action failed:', data.error);
+      }
+
+      setSelectedIds(new Set());
+      router.refresh();
+    } catch (error) {
+      console.error('Bulk action error:', error);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
   const handleStatusChange = async (artist: Artist, newStatus: 'approved' | 'suspended') => {
     try {
@@ -141,10 +194,28 @@ export function ArtistsTable({ artists }: ArtistsTableProps) {
 
   return (
     <>
+      {/* Toolbar with Search and Bulk Actions */}
+      <AdminToolbar
+        selectedCount={selectedIds.size}
+        onBulkApprove={() => handleBulkAction('approve')}
+        onBulkSuspend={() => handleBulkAction('suspend')}
+        onBulkFeature={() => handleBulkAction('feature')}
+        onClearSelection={clearSelection}
+        isProcessing={isProcessing}
+      />
+
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead className="bg-gray-50 border-b border-gray-100">
             <tr>
+              <th className="px-4 py-3 text-left">
+                <input
+                  type="checkbox"
+                  checked={selectedIds.size === artists.length && artists.length > 0}
+                  onChange={toggleSelectAll}
+                  className="w-4 h-4 rounded border-gray-300 text-[var(--color-teal)] focus:ring-[var(--color-teal)]"
+                />
+              </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Artist
               </th>
@@ -170,7 +241,18 @@ export function ArtistsTable({ artists }: ArtistsTableProps) {
           </thead>
           <tbody className="divide-y divide-gray-100">
             {artists.map((artist) => (
-              <tr key={artist.id} className="hover:bg-gray-50">
+              <tr
+                key={artist.id}
+                className={`hover:bg-gray-50 ${selectedIds.has(artist.id) ? 'bg-[var(--color-teal)]/5' : ''}`}
+              >
+                <td className="px-4 py-4 whitespace-nowrap">
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.has(artist.id)}
+                    onChange={() => toggleSelect(artist.id)}
+                    className="w-4 h-4 rounded border-gray-300 text-[var(--color-teal)] focus:ring-[var(--color-teal)]"
+                  />
+                </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">

@@ -2,7 +2,7 @@
 
 **Created:** 2025-12-29
 **Last Updated:** 2025-12-29
-**Status:** Phase 3 Complete - 3 of 5 phases done
+**Status:** All 5 Phases Complete
 
 ---
 
@@ -141,31 +141,85 @@ This document tracks UX improvements identified from evaluating the platform fro
 
 ---
 
-### Phase 4: Events Feature
+### Phase 4: Events Feature ✅
 *Goal: Artists can promote exhibitions, workshops, performances*
 
 | # | Task | Status | Notes |
 |---|------|--------|-------|
-| 4.1 | Design events schema | Pending | DB table for events |
-| 4.2 | Events page for viewers | Pending | `/events` with filters |
-| 4.3 | Add events to artist dashboard | Pending | Artists can create events |
-| 4.4 | Events on artist profile | Pending | "Upcoming Events" section |
+| 4.1 | Design events schema | ✅ Done | events table with types, RLS policies |
+| 4.2 | Events page for viewers | ✅ Done | `/events` with type/location filters |
+| 4.3 | Add events to artist dashboard | ✅ Done | Full CRUD in `/dashboard/events` |
+| 4.4 | Events on artist profile | ✅ Done | "Upcoming Events" section with 3 events |
 
-**Review after Phase 4:** _To be completed_
+### Phase 4 Review (2025-12-29)
+
+**What was implemented?**
+- Created `events` table with PostgreSQL enum for event types
+- 8 event types: exhibition, workshop, performance, talk, market, opening, meetup, other
+- Full EventsDirectory component with filtering
+- EventsManager for dashboard CRUD operations
+- UpcomingEventsSection for artist profiles
+- Events navigation added to header and dashboard sidebar
+
+**Files created/modified:**
+- `supabase/migrations/005_events.sql` - Database migration
+- `supabase/SETUP-EVENTS.sql` - Production setup script
+- `src/app/events/page.tsx` - Public events directory
+- `src/components/events/EventsDirectory.tsx` - Events listing with filters
+- `src/app/dashboard/events/page.tsx` - Dashboard events page
+- `src/components/dashboard/EventsManager.tsx` - CRUD component
+- `src/components/artists/UpcomingEventsSection.tsx` - Profile section
+
+**What works well?**
+- Comprehensive event types cover all common art events
+- Date/time handling for both all-day and timed events
+- Past events collapsible section in directory
+- Artist profiles show up to 3 upcoming events
+
+**What issues were discovered?**
+- Need to run `SETUP-EVENTS.sql` in production to enable feature
 
 ---
 
-### Phase 5: Admin Enhancements
+### Phase 5: Admin Enhancements ✅
 *Goal: Improve admin efficiency*
 
 | # | Task | Status | Notes |
 |---|------|--------|-------|
-| 5.1 | Search in admin artists list | Pending | |
-| 5.2 | Bulk approve/reject artists | Pending | |
-| 5.3 | Featured artist toggle in admin | Pending | |
-| 5.4 | Connect settings to actual functionality | Pending | |
+| 5.1 | Search in admin artists list | ✅ Done | Search by name with URL params |
+| 5.2 | Bulk approve/reject artists | ✅ Done | Checkbox selection + bulk actions |
+| 5.3 | Featured artist toggle in admin | ✅ Done | Already existed - star icon in table |
+| 5.4 | Connect settings to actual functionality | ⏸️ Deferred | Needs full settings system |
 
-**Review after Phase 5:** _To be completed_
+### Phase 5 Review (2025-12-29)
+
+**What was implemented?**
+- AdminToolbar component with search input and bulk action buttons
+- Checkbox selection in ArtistsTable with select-all
+- Bulk actions: approve, suspend, feature (via API)
+- Visual feedback for selected rows
+- Backend already supported search via URL params
+
+**Files created/modified:**
+- `src/components/admin/AdminToolbar.tsx` - Search + bulk actions toolbar
+- `src/components/admin/ArtistsTable.tsx` - Added checkboxes, selection state
+- `src/lib/validations/artist.ts` - Added adminBulkActionSchema
+- `src/app/api/admin/artists/route.ts` - Added bulk action handlers
+
+**What works well?**
+- Search is fast with server-side filtering
+- Bulk actions process all selected artists at once
+- Clear visual feedback with teal highlight on selected rows
+- Featured toggle already worked (star icon toggles on click)
+
+**Phase 5.4 deferred:**
+The admin settings page is currently a UI mockup. Making it functional would require:
+- Database table for platform settings
+- API endpoints for CRUD
+- Settings context/provider for app-wide access
+- Actually applying settings throughout the application
+
+This is a larger feature that should be its own implementation effort.
 
 ---
 
