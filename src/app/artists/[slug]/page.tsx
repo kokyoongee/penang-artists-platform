@@ -6,8 +6,9 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { ContactForm } from '@/components/artists/ContactForm';
 import { PortfolioGallery } from '@/components/artists/PortfolioGallery';
+import { ServicesSection } from '@/components/artists/ServicesSection';
 import { createServerClient } from '@/lib/supabase/server';
-import { Artist, PortfolioItem, MEDIUM_LABELS, LOCATION_LABELS, PRICE_RANGE_LABELS, EXPERIENCE_LABELS } from '@/types';
+import { Artist, PortfolioItem, Service, MEDIUM_LABELS, LOCATION_LABELS, PRICE_RANGE_LABELS, EXPERIENCE_LABELS } from '@/types';
 
 interface ArtistProfilePageProps {
   params: Promise<{ slug: string }>;
@@ -49,6 +50,25 @@ async function getPortfolioItems(artistId: string): Promise<PortfolioItem[]> {
   return (data as PortfolioItem[]) || [];
 }
 
+async function getServices(artistId: string): Promise<Service[]> {
+  const supabase = await createServerClient();
+
+  // Using type assertion since table may not exist yet
+  const { data, error } = await (supabase as any)
+    .from('services')
+    .select('*')
+    .eq('artist_id', artistId)
+    .eq('is_active', true)
+    .order('sort_order', { ascending: true });
+
+  if (error) {
+    // Table may not exist yet, silently return empty array
+    return [];
+  }
+
+  return (data as Service[]) || [];
+}
+
 export default async function ArtistProfilePage({ params }: ArtistProfilePageProps) {
   const { slug } = await params;
   const artist = await getArtistBySlug(slug);
@@ -57,7 +77,10 @@ export default async function ArtistProfilePage({ params }: ArtistProfilePagePro
     notFound();
   }
 
-  const portfolioItems = await getPortfolioItems(artist.id);
+  const [portfolioItems, services] = await Promise.all([
+    getPortfolioItems(artist.id),
+    getServices(artist.id),
+  ]);
 
   return (
     <div className="min-h-screen bg-[var(--color-cream)]">
@@ -198,6 +221,16 @@ export default async function ArtistProfilePage({ params }: ArtistProfilePagePro
                 )}
               </div>
 
+              {/* Services */}
+              {services.length > 0 && (
+                <div>
+                  <h2 className="font-display text-2xl font-semibold text-[var(--color-charcoal)] mb-6">
+                    Services & Offerings
+                  </h2>
+                  <ServicesSection services={services} />
+                </div>
+              )}
+
               {/* Portfolio */}
               {portfolioItems.length > 0 && (
                 <div>
@@ -310,7 +343,7 @@ export default async function ArtistProfilePage({ params }: ArtistProfilePagePro
 
                 {/* Contact Form */}
                 {artist.whatsapp ? (
-                  <ContactForm artist={artist} />
+                  <ContactForm artist={artist} services={services} />
                 ) : (
                   <p className="text-sm text-[var(--color-charcoal)]/60 text-center">
                     Contact this artist via email or social media.

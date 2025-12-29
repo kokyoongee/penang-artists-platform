@@ -3,6 +3,19 @@ export type ArtistStatus = 'draft' | 'pending' | 'approved' | 'suspended';
 export type ExperienceLevel = 'emerging' | 'established' | 'master';
 export type PriceRange = 'budget' | 'mid' | 'premium' | 'contact';
 
+// Service types
+export type ServiceType =
+  | 'commission'
+  | 'workshop'
+  | 'performance'
+  | 'consultation'
+  | 'print'
+  | 'original'
+  | 'merchandise'
+  | 'other';
+
+export type PriceType = 'fixed' | 'from' | 'range' | 'hourly' | 'quote';
+
 export type MediumCategory =
   | 'visual-art'
   | 'photography'
@@ -143,4 +156,43 @@ export const EXPERIENCE_LABELS: Record<ExperienceLevel, string> = {
   'emerging': 'Emerging Artist',
   'established': 'Established Artist',
   'master': 'Master Artist',
+};
+
+// Service interfaces and labels
+export interface Service {
+  id: string;
+  artist_id: string;
+  title: string;
+  description: string | null;
+  service_type: ServiceType;
+  price_type: PriceType;
+  price_min: number | null;
+  price_max: number | null;
+  currency: string;
+  delivery_time: string | null;
+  image_url: string | null;
+  is_active: boolean;
+  is_featured: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export const SERVICE_TYPE_LABELS: Record<ServiceType, string> = {
+  'commission': 'Commission',
+  'workshop': 'Workshop',
+  'performance': 'Performance',
+  'consultation': 'Consultation',
+  'print': 'Art Print',
+  'original': 'Original Artwork',
+  'merchandise': 'Merchandise',
+  'other': 'Other',
+};
+
+export const PRICE_TYPE_LABELS: Record<PriceType, string> = {
+  'fixed': 'Fixed Price',
+  'from': 'Starting From',
+  'range': 'Price Range',
+  'hourly': 'Per Hour',
+  'quote': 'Contact for Quote',
 };

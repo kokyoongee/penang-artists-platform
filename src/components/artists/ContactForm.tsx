@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { Send, MessageCircle } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Send, MessageCircle, Package } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -13,10 +13,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Artist, INQUIRY_TYPE_LABELS, InquiryType } from '@/types';
+import { Artist, Service, INQUIRY_TYPE_LABELS, InquiryType } from '@/types';
 
 interface ContactFormProps {
   artist: Artist;
+  services?: Service[];
+  preselectedServiceId?: string;
 }
 
 interface FormData {
@@ -24,29 +26,45 @@ interface FormData {
   email: string;
   phone: string;
   inquiryType: InquiryType | '';
+  serviceId: string;
   message: string;
 }
 
-export function ContactForm({ artist }: ContactFormProps) {
+export function ContactForm({ artist, services = [], preselectedServiceId }: ContactFormProps) {
   const [formData, setFormData] = useState<FormData>({
     name: '',
     email: '',
     phone: '',
     inquiryType: '',
+    serviceId: preselectedServiceId || '',
     message: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Update serviceId if preselectedServiceId changes
+  useEffect(() => {
+    if (preselectedServiceId) {
+      setFormData((prev) => ({ ...prev, serviceId: preselectedServiceId }));
+    }
+  }, [preselectedServiceId]);
+
+  const selectedService = services.find((s) => s.id === formData.serviceId);
 
   const formatWhatsAppMessage = () => {
     const inquiryLabel = formData.inquiryType
       ? INQUIRY_TYPE_LABELS[formData.inquiryType]
       : 'General Inquiry';
 
+    let serviceInfo = '';
+    if (selectedService) {
+      serviceInfo = `\n*Service Interested In:* ${selectedService.title}`;
+    }
+
     const message = `Hi ${artist.display_name}!
 
 I found your profile on Penang Artists Platform and would like to reach out.
 
-*Inquiry Type:* ${inquiryLabel}
+*Inquiry Type:* ${inquiryLabel}${serviceInfo}
 
 *Message:*
 ${formData.message}
@@ -74,6 +92,7 @@ _Sent via Penang Artists Platform_`;
     console.log('Visitor inquiry:', {
       artistId: artist.id,
       ...formData,
+      serviceName: selectedService?.title || null,
       timestamp: new Date().toISOString(),
     });
 
@@ -152,6 +171,38 @@ _Sent via Penang Artists Platform_`;
           </SelectContent>
         </Select>
       </div>
+
+      {/* Service Selection - only show if services available */}
+      {services.length > 0 && (
+        <div className="space-y-2">
+          <Label htmlFor="serviceId" className="flex items-center gap-2">
+            <Package className="w-4 h-4 text-[var(--color-teal)]" />
+            Interested in a specific service?
+          </Label>
+          <Select
+            value={formData.serviceId}
+            onValueChange={(value) => updateField('serviceId', value)}
+          >
+            <SelectTrigger className="bg-white border-[var(--color-charcoal)]/10">
+              <SelectValue placeholder="Select a service (optional)" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">No specific service</SelectItem>
+              {services.map((service) => (
+                <SelectItem key={service.id} value={service.id}>
+                  {service.title}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {selectedService && (
+            <p className="text-xs text-[var(--color-charcoal)]/60 mt-1">
+              {selectedService.description?.slice(0, 100)}
+              {selectedService.description && selectedService.description.length > 100 ? '...' : ''}
+            </p>
+          )}
+        </div>
+      )}
 
       <div className="space-y-2">
         <Label htmlFor="message">Your Message *</Label>

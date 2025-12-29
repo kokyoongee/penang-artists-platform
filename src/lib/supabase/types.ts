@@ -29,6 +29,16 @@ export type InquiryType =
   | 'event'
   | 'general';
 export type UserRole = 'admin' | 'artist';
+export type ServiceType =
+  | 'commission'
+  | 'workshop'
+  | 'performance'
+  | 'consultation'
+  | 'print'
+  | 'original'
+  | 'merchandise'
+  | 'other';
+export type PriceType = 'fixed' | 'from' | 'range' | 'hourly' | 'quote';
 
 export interface Database {
   public: {
@@ -268,6 +278,62 @@ export interface Database {
           created_at?: string;
         };
       };
+      services: {
+        Row: {
+          id: string;
+          artist_id: string;
+          title: string;
+          description: string | null;
+          service_type: ServiceType;
+          price_type: PriceType;
+          price_min: number | null;
+          price_max: number | null;
+          currency: string;
+          delivery_time: string | null;
+          image_url: string | null;
+          is_active: boolean;
+          is_featured: boolean;
+          sort_order: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          artist_id: string;
+          title: string;
+          description?: string | null;
+          service_type?: ServiceType;
+          price_type?: PriceType;
+          price_min?: number | null;
+          price_max?: number | null;
+          currency?: string;
+          delivery_time?: string | null;
+          image_url?: string | null;
+          is_active?: boolean;
+          is_featured?: boolean;
+          sort_order?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          artist_id?: string;
+          title?: string;
+          description?: string | null;
+          service_type?: ServiceType;
+          price_type?: PriceType;
+          price_min?: number | null;
+          price_max?: number | null;
+          currency?: string;
+          delivery_time?: string | null;
+          image_url?: string | null;
+          is_active?: boolean;
+          is_featured?: boolean;
+          sort_order?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
     };
     Enums: {
       artist_status: ArtistStatus;
@@ -277,6 +343,8 @@ export interface Database {
       location_area: LocationArea;
       inquiry_type: InquiryType;
       user_role: UserRole;
+      service_type: ServiceType;
+      price_type: PriceType;
     };
   };
 }
@@ -290,3 +358,6 @@ export type PortfolioItemInsert = Database['public']['Tables']['portfolio_items'
 export type Inquiry = Database['public']['Tables']['inquiries']['Row'];
 export type InquiryInsert = Database['public']['Tables']['inquiries']['Insert'];
 export type Profile = Database['public']['Tables']['profiles']['Row'];
+export type Service = Database['public']['Tables']['services']['Row'];
+export type ServiceInsert = Database['public']['Tables']['services']['Insert'];
+export type ServiceUpdate = Database['public']['Tables']['services']['Update'];

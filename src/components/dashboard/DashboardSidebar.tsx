@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   User,
   Images,
+  Package,
   MessageSquare,
   Settings,
   ExternalLink,
@@ -23,6 +24,7 @@ const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { name: 'My Profile', href: '/dashboard/profile', icon: User },
   { name: 'Portfolio', href: '/dashboard/portfolio', icon: Images },
+  { name: 'Services', href: '/dashboard/services', icon: Package },
   { name: 'Inquiries', href: '/dashboard/inquiries', icon: MessageSquare },
   { name: 'Settings', href: '/dashboard/settings', icon: Settings },
 ];
