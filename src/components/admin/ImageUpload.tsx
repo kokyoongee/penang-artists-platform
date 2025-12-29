@@ -56,6 +56,12 @@ export function ImageUpload({
     try {
       const supabase = createClient();
 
+      // Verify user is authenticated before upload
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error('Please sign in to upload images');
+      }
+
       // Generate unique filename
       const fileExt = file.name.split('.').pop();
       const fileName = `${folder}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
