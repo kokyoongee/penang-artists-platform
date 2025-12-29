@@ -49,8 +49,11 @@ export default async function DashboardPage() {
         user_id: profile.id,
         display_name: userName,
         slug: slug,
+        email: profile.email,
         bio: '',
-        art_types: [],
+        location: 'georgetown',
+        primary_medium: 'visual-art',
+        secondary_mediums: [],
         status: 'draft',
       })
       .select()
