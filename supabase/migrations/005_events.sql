@@ -17,7 +17,7 @@ CREATE TYPE event_type AS ENUM (
 
 -- Create events table
 CREATE TABLE events (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     artist_id UUID NOT NULL REFERENCES artists(id) ON DELETE CASCADE,
 
     -- Basic info
@@ -33,7 +33,7 @@ CREATE TABLE events (
     -- Location
     venue TEXT,
     address TEXT,
-    location location_type, -- Reuse existing location enum (george_town, bayan_lepas, etc.)
+    location location_area, -- Reuse existing location enum (george_town, bayan_lepas, etc.)
 
     -- Media
     image_url TEXT,

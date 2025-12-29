@@ -30,7 +30,7 @@ CREATE TYPE price_type AS ENUM (
 -- ============================================
 
 CREATE TABLE services (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   artist_id UUID NOT NULL REFERENCES artists(id) ON DELETE CASCADE,
 
   -- Basic info
