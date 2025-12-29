@@ -23,11 +23,13 @@ export async function GET(request: Request) {
 
       // If no profile exists, create one (for new OAuth users)
       if (!profile) {
+        const userName = data.user.user_metadata?.full_name || data.user.email?.split('@')[0] || 'Artist';
+
         const { error: profileError } = await adminClient
           .from('profiles')
           .insert({
             id: data.user.id,
-            name: data.user.user_metadata?.full_name || data.user.email?.split('@')[0] || 'Artist',
+            name: userName,
             email: data.user.email,
             role: 'artist',
             status: 'pending',
@@ -35,6 +37,32 @@ export async function GET(request: Request) {
 
         if (profileError) {
           console.error('Error creating profile:', profileError);
+        }
+
+        // Also create a draft artist profile so user doesn't have to "join twice"
+        const baseSlug = userName
+          .toLowerCase()
+          .replace(/[^a-z0-9\s-]/g, '')
+          .replace(/\s+/g, '-')
+          .replace(/-+/g, '-')
+          .trim();
+
+        // Add random suffix for uniqueness
+        const slug = `${baseSlug}-${Math.random().toString(36).substring(2, 6)}`;
+
+        const { error: artistError } = await adminClient
+          .from('artists')
+          .insert({
+            user_id: data.user.id,
+            display_name: userName,
+            slug: slug,
+            bio: '',
+            art_types: [],
+            status: 'draft',
+          });
+
+        if (artistError) {
+          console.error('Error creating artist profile:', artistError);
         }
 
         // Redirect new users to complete their profile

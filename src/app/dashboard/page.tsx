@@ -10,7 +10,7 @@ import {
   Clock,
   Sparkles,
 } from 'lucide-react';
-import { createServerClient, getProfile } from '@/lib/supabase/server';
+import { createServerClient, createAdminClient, getProfile } from '@/lib/supabase/server';
 import { Button } from '@/components/ui/button';
 import { Artist } from '@/lib/supabase/types';
 
@@ -23,11 +23,43 @@ export default async function DashboardPage() {
   }
 
   // Get artist data
-  const { data: artistData } = await supabase
+  let { data: artistData } = await supabase
     .from('artists')
     .select('*')
     .eq('user_id', profile.id)
     .single();
+
+  // Auto-create draft artist profile if none exists (fixes "join twice" UX issue)
+  if (!artistData) {
+    const adminClient = createAdminClient();
+    const userName = profile.full_name || profile.email?.split('@')[0] || 'Artist';
+
+    const baseSlug = userName
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .trim();
+
+    const slug = `${baseSlug}-${Math.random().toString(36).substring(2, 6)}`;
+
+    const { data: newArtist } = await adminClient
+      .from('artists')
+      .insert({
+        user_id: profile.id,
+        display_name: userName,
+        slug: slug,
+        bio: '',
+        art_types: [],
+        status: 'draft',
+      })
+      .select()
+      .single();
+
+    if (newArtist) {
+      artistData = newArtist;
+    }
+  }
 
   const artist = artistData as Artist | null;
 
