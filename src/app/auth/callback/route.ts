@@ -29,10 +29,9 @@ export async function GET(request: Request) {
           .from('profiles')
           .insert({
             id: data.user.id,
-            name: userName,
+            full_name: userName,
             email: data.user.email,
             role: 'artist',
-            status: 'pending',
           });
 
         if (profileError) {
@@ -56,8 +55,11 @@ export async function GET(request: Request) {
             user_id: data.user.id,
             display_name: userName,
             slug: slug,
+            email: data.user.email,
             bio: '',
-            art_types: [],
+            location: 'georgetown',
+            primary_medium: 'visual-art',
+            secondary_mediums: [],
             status: 'draft',
           });
 
