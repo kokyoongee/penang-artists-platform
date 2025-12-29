@@ -4,6 +4,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { SettingsProvider } from "@/contexts/SettingsContext";
 
 export const metadata: Metadata = {
   title: "Penang Artists - Discover Local Creative Talent",
@@ -25,12 +26,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased min-h-screen flex flex-col">
-        <div className="pattern-bg" />
-        <Header />
-        <main className="flex-1 pt-[72px]">
-          {children}
-        </main>
-        <Footer />
+        <SettingsProvider>
+          <div className="pattern-bg" />
+          <Header />
+          <main className="flex-1 pt-[72px]">
+            {children}
+          </main>
+          <Footer />
+        </SettingsProvider>
         <Analytics />
         <SpeedInsights />
       </body>

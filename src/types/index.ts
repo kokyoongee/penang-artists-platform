@@ -262,3 +262,40 @@ export const EVENT_TYPE_ICONS: Record<EventType, string> = {
   'meetup': '👥',
   'other': '📅',
 };
+
+// Platform Settings
+export interface PlatformSettings {
+  id: string;
+  // General
+  site_name: string;
+  contact_email: string;
+  site_description: string;
+  // Artist Profiles
+  auto_approve_artists: boolean;
+  allow_portfolio_uploads: boolean;
+  max_portfolio_items: number;
+  // Notifications
+  notify_new_registration: boolean;
+  notify_new_inquiry: boolean;
+  // Security
+  require_email_verification: boolean;
+  // Metadata
+  updated_at: string;
+  updated_by: string | null;
+}
+
+// Default settings (used when table doesn't exist or is empty)
+export const DEFAULT_SETTINGS: PlatformSettings = {
+  id: '00000000-0000-0000-0000-000000000001',
+  site_name: 'Penang Artists',
+  contact_email: 'hello@penangartists.com',
+  site_description: "Connecting Penang's vibrant creative community",
+  auto_approve_artists: false,
+  allow_portfolio_uploads: true,
+  max_portfolio_items: 20,
+  notify_new_registration: true,
+  notify_new_inquiry: true,
+  require_email_verification: true,
+  updated_at: new Date().toISOString(),
+  updated_by: null,
+};

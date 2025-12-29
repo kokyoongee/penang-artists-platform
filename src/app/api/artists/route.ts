@@ -4,6 +4,24 @@ import { artistSchema, artistUpdateSchema } from '@/lib/validations/artist';
 import { apiError, handleValidationError } from '@/lib/api-error';
 import { checkRateLimit, getClientIP, rateLimitResponse } from '@/lib/rate-limit';
 import { ZodError } from 'zod';
+import { PlatformSettings, DEFAULT_SETTINGS } from '@/types';
+
+// Fixed settings ID
+const SETTINGS_ID = '00000000-0000-0000-0000-000000000001';
+
+// Get platform settings
+async function getSettings(adminClient: any): Promise<PlatformSettings> {
+  try {
+    const { data } = await adminClient
+      .from('platform_settings')
+      .select('*')
+      .eq('id', SETTINGS_ID)
+      .single();
+    return data || DEFAULT_SETTINGS;
+  } catch {
+    return DEFAULT_SETTINGS;
+  }
+}
 
 // Generate slug from display name
 function generateSlug(name: string): string {
@@ -132,10 +150,22 @@ export async function PUT(request: NextRequest) {
       return apiError('FORBIDDEN');
     }
 
+    // Prepare database update (may include extra fields beyond schema)
+    let dbUpdate: Record<string, unknown> = { ...updateData };
+
+    // Check auto-approve setting when status changes to 'pending'
+    if (updateData.status === 'pending') {
+      const settings = await getSettings(adminClient);
+      if (settings.auto_approve_artists) {
+        dbUpdate.status = 'approved';
+        dbUpdate.approved_at = new Date().toISOString();
+      }
+    }
+
     // Update artist profile
     const { data: updated, error } = await adminClient
       .from('artists')
-      .update(updateData)
+      .update(dbUpdate)
       .eq('id', id)
       .select()
       .single();

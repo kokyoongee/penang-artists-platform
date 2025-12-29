@@ -11,6 +11,7 @@ import {
   X,
   Save,
   Images,
+  AlertCircle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,6 +20,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { ImageUpload } from '@/components/admin/ImageUpload';
 import { createUntypedClient } from '@/lib/supabase/client';
 import { PortfolioItem } from '@/lib/supabase/types';
+import { useSettings } from '@/contexts/SettingsContext';
 
 interface PortfolioManagerProps {
   artistId: string;
@@ -34,6 +36,7 @@ interface EditingItem {
 
 export function PortfolioManager({ artistId, items }: PortfolioManagerProps) {
   const router = useRouter();
+  const { settings } = useSettings();
   const [portfolioItems, setPortfolioItems] = useState(items);
   const [isAdding, setIsAdding] = useState(false);
   const [editingItem, setEditingItem] = useState<EditingItem | null>(null);
@@ -41,7 +44,14 @@ export function PortfolioManager({ artistId, items }: PortfolioManagerProps) {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [error, setError] = useState('');
 
+  // Check settings
+  const uploadsAllowed = settings.allow_portfolio_uploads;
+  const maxItems = settings.max_portfolio_items;
+  const atLimit = portfolioItems.length >= maxItems;
+  const canAddItem = uploadsAllowed && !atLimit;
+
   const handleAddNew = () => {
+    if (!canAddItem) return;
     setEditingItem({
       image_url: '',
       title: '',
@@ -164,6 +174,31 @@ export function PortfolioManager({ artistId, items }: PortfolioManagerProps) {
 
   return (
     <div className="space-y-6">
+      {/* Settings Warnings */}
+      {!uploadsAllowed && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+          <div>
+            <p className="font-medium text-yellow-800">Portfolio uploads are currently disabled</p>
+            <p className="text-sm text-yellow-700 mt-1">
+              The platform administrator has temporarily disabled portfolio uploads. You can still view and manage your existing items.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {uploadsAllowed && atLimit && (
+        <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+          <div>
+            <p className="font-medium text-blue-800">Portfolio limit reached</p>
+            <p className="text-sm text-blue-700 mt-1">
+              You&apos;ve reached the maximum of {maxItems} portfolio items. Remove an existing item to add a new one.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Add/Edit Form */}
       {editingItem && (
         <div className="bg-white rounded-xl shadow-sm p-6">
@@ -300,7 +335,7 @@ export function PortfolioManager({ artistId, items }: PortfolioManagerProps) {
           ))}
 
           {/* Add button as grid item */}
-          {!editingItem && (
+          {!editingItem && canAddItem && (
             <button
               onClick={handleAddNew}
               className="aspect-square flex flex-col items-center justify-center gap-2 border-2 border-dashed border-gray-200 rounded-xl hover:border-[var(--color-teal)] hover:bg-gray-50 transition-colors"
@@ -317,9 +352,13 @@ export function PortfolioManager({ artistId, items }: PortfolioManagerProps) {
             No portfolio items yet
           </h3>
           <p className="text-gray-500 mb-6">
-            Add your best work to showcase your talent
+            {canAddItem
+              ? 'Add your best work to showcase your talent'
+              : !uploadsAllowed
+                ? 'Portfolio uploads are currently disabled by the platform administrator'
+                : 'Portfolio limit reached'}
           </p>
-          {!editingItem && (
+          {!editingItem && canAddItem && (
             <Button
               onClick={handleAddNew}
               className="bg-[var(--color-teal)] hover:bg-[var(--color-teal)]/90"
@@ -332,7 +371,7 @@ export function PortfolioManager({ artistId, items }: PortfolioManagerProps) {
       )}
 
       {/* Add button (when there are items but not editing) */}
-      {portfolioItems.length > 0 && !editingItem && (
+      {portfolioItems.length > 0 && !editingItem && canAddItem && (
         <div className="flex justify-center">
           <Button
             onClick={handleAddNew}
@@ -340,7 +379,7 @@ export function PortfolioManager({ artistId, items }: PortfolioManagerProps) {
             className="border-[var(--color-teal)] text-[var(--color-teal)] hover:bg-[var(--color-teal)]/10"
           >
             <Plus className="w-4 h-4 mr-2" />
-            Add Another Item
+            Add Another Item ({portfolioItems.length}/{maxItems})
           </Button>
         </div>
       )}
