@@ -54,17 +54,42 @@ This document tracks UX improvements identified from evaluating the platform fro
 
 ---
 
-### Phase 2: Enhanced Discoverability
+### Phase 2: Enhanced Discoverability ✅
 *Goal: Help viewers find the right artists*
 
 | # | Task | Status | Notes |
 |---|------|--------|-------|
-| 2.1 | Add "Available For" filters to directory | Pending | Filter by: commissions, collaboration, events |
-| 2.2 | Add search bar to artist directory | Pending | Search by name, medium, style |
-| 2.3 | Enhance artist cards in directory | Pending | Show availability badges, price range |
-| 2.4 | Featured artists on homepage | Pending | Manual feature flag in admin |
+| 2.1 | Add "Available For" filters to directory | ✅ Done | Toggle pills for Commissions, Collaboration, Events |
+| 2.2 | Add search bar to artist directory | ✅ Done | Already existed - search by name, tagline, bio |
+| 2.3 | Enhance artist cards in directory | ✅ Done | All availability badges + price range displayed |
+| 2.4 | Featured artists on homepage | ✅ Done | Already existed - pulls artists with `featured: true` |
 
-**Review after Phase 2:** _To be completed_
+**Review after Phase 2:**
+
+### Phase 2 Review (2025-12-29)
+
+**What was implemented?**
+- Added availability filter pills: Commissions (ochre), Collaboration (teal), Events (terracotta)
+- Filter pills toggle on/off with color feedback
+- Mobile-responsive: pills appear in mobile filter dropdown
+- Enhanced ArtistCard with all availability badges
+- Added price range display to artist cards (with $ icon in teal)
+
+**What works well?**
+- Filters are visually distinct with brand colors
+- Toggle behavior is intuitive (click to enable/disable)
+- Clear button resets all filters including availability
+- Cards show comprehensive info at a glance
+
+**What issues were discovered?**
+- Search bar already existed (was in Phase 2.2)
+- Featured artists section already existed (was in Phase 2.4)
+- Test artist has no availability flags set, so badges don't display
+
+**Screenshot verification:**
+- `.playwright-mcp/phase2-filters-deployed.png`
+
+**Scope changes for Phase 3:** None - proceed as planned
 
 ---
 
@@ -112,6 +137,12 @@ This document tracks UX improvements identified from evaluating the platform fro
 
 ## Implementation Log
 
+### 2025-12-29 - Phase 2 Complete
+- Added availability filter pills (Commissions, Collaboration, Events)
+- Enhanced artist cards with all badges and price range
+- Discovered search and featured artists already existed
+- Deployed and verified on production
+
 ### 2025-12-29 - Phase 1 Complete
 - Reviewed artist profile code - discovered most features already existed
 - Added Quick Info Card (Experience level, Price Range) to artist profile
@@ -141,12 +172,12 @@ After each phase, answer:
 
 ## Current Focus
 
-**Next up:** Phase 2 - Enhanced Discoverability
+**Next up:** Phase 3 - Products & Services
 
-Phase 2 will help viewers find the right artists:
-- 2.1: Add "Available For" filters to directory (commissions, collaboration, events)
-- 2.2: Add search bar to artist directory
-- 2.3: Enhance artist cards with availability badges and price range
-- 2.4: Featured artists on homepage
+Phase 3 will let artists list what they offer:
+- 3.1: Design products/services schema (DB tables)
+- 3.2: Add services section to artist dashboard (CRUD)
+- 3.3: Display services on public profile
+- 3.4: Inquiry form with service selection
 
 ---
