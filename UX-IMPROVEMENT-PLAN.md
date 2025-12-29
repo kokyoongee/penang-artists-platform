@@ -189,7 +189,7 @@ This document tracks UX improvements identified from evaluating the platform fro
 | 5.1 | Search in admin artists list | ✅ Done | Search by name with URL params |
 | 5.2 | Bulk approve/reject artists | ✅ Done | Checkbox selection + bulk actions |
 | 5.3 | Featured artist toggle in admin | ✅ Done | Already existed - star icon in table |
-| 5.4 | Connect settings to actual functionality | ⏸️ Deferred | Needs full settings system |
+| 5.4 | Connect settings to actual functionality | ✅ Done | Full settings system implemented |
 
 ### Phase 5 Review (2025-12-29)
 
@@ -212,18 +212,40 @@ This document tracks UX improvements identified from evaluating the platform fro
 - Clear visual feedback with teal highlight on selected rows
 - Featured toggle already worked (star icon toggles on click)
 
-**Phase 5.4 deferred:**
-The admin settings page is currently a UI mockup. Making it functional would require:
-- Database table for platform settings
-- API endpoints for CRUD
-- Settings context/provider for app-wide access
-- Actually applying settings throughout the application
+**Phase 5.4 implemented (2025-12-29):**
+Created full platform settings system:
+- `platform_settings` table with single-row pattern
+- Settings API endpoints (GET public, PUT admin-only)
+- `SettingsProvider` context for app-wide access
+- Admin settings page connected to real API with save/load
+- `auto_approve_artists` setting applied in artist submission flow
+- `allow_portfolio_uploads` and `max_portfolio_items` enforced in PortfolioManager
 
-This is a larger feature that should be its own implementation effort.
+Files created:
+- `supabase/migrations/006_platform_settings.sql`
+- `supabase/SETUP-SETTINGS.sql`
+- `src/app/api/settings/route.ts`
+- `src/contexts/SettingsContext.tsx`
+
+Files modified:
+- `src/types/index.ts` - Added PlatformSettings interface
+- `src/app/layout.tsx` - Added SettingsProvider wrapper
+- `src/app/admin/settings/page.tsx` - Connected to API
+- `src/app/api/artists/route.ts` - Auto-approve logic
+- `src/components/dashboard/PortfolioManager.tsx` - Limit enforcement
 
 ---
 
 ## Implementation Log
+
+### 2025-12-29 - Phase 5.4 Complete
+- Implemented full platform settings system
+- Created platform_settings table and API endpoints
+- Built SettingsProvider context for app-wide settings access
+- Connected admin settings page to real API
+- Applied auto_approve_artists to artist submission flow
+- Enforced portfolio limits in PortfolioManager component
+- All 5 phases now fully complete
 
 ### 2025-12-29 - Phase 3 Complete
 - Designed and implemented services database schema with enums
@@ -267,14 +289,13 @@ After each phase, answer:
 
 ## Current Focus
 
-**Next up:** Phase 4 - Events Feature
+**All 5 phases complete!**
 
-Phase 4 will let artists promote exhibitions, workshops, and performances:
-- 4.1: Design events schema (DB table with date, location, type)
-- 4.2: Events page for viewers (`/events` with filters)
-- 4.3: Add events to artist dashboard (CRUD)
-- 4.4: Events on artist profile ("Upcoming Events" section)
+To enable the new features in production, run these SQL scripts in Supabase:
+1. `supabase/SETUP-SERVICES.sql` - Services feature
+2. `supabase/SETUP-EVENTS.sql` - Events feature
+3. `supabase/SETUP-SETTINGS.sql` - Platform settings
 
-**Note:** Before Phase 4, need to run `supabase/SETUP-SERVICES.sql` in production to enable services feature.
+All features work gracefully when tables don't exist (fallback to defaults or hidden sections).
 
 ---
