@@ -4,7 +4,7 @@ import { useState, useRef } from 'react';
 import Image from 'next/image';
 import { Upload, X, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { createUntypedClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 
 interface ImageUploadProps {
   value: string;
@@ -54,7 +54,7 @@ export function ImageUpload({
     setIsUploading(true);
 
     try {
-      const supabase = createUntypedClient();
+      const supabase = createClient();
 
       // Generate unique filename
       const fileExt = file.name.split('.').pop();
