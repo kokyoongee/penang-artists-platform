@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { MapPin } from 'lucide-react';
+import { MapPin, DollarSign } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { Artist, MEDIUM_LABELS, LOCATION_LABELS } from '@/types';
+import { Artist, MEDIUM_LABELS, LOCATION_LABELS, PRICE_RANGE_LABELS } from '@/types';
 
 interface ArtistCardProps {
   artist: Artist;
@@ -32,7 +32,7 @@ export function ArtistCard({ artist }: ArtistCardProps) {
         )}
 
         {/* Badges overlay */}
-        <div className="absolute top-3 left-3 flex flex-wrap gap-2">
+        <div className="absolute top-3 left-3 right-3 flex flex-wrap gap-1.5">
           {artist.verified && (
             <Badge className="bg-[var(--color-teal)] text-white text-xs font-medium px-2 py-0.5">
               Verified
@@ -40,7 +40,17 @@ export function ArtistCard({ artist }: ArtistCardProps) {
           )}
           {artist.open_for_commissions && (
             <Badge className="bg-[var(--color-ochre)] text-[var(--color-soft-black)] text-xs font-medium px-2 py-0.5">
-              Open for Work
+              Commissions
+            </Badge>
+          )}
+          {artist.open_for_collaboration && (
+            <Badge className="bg-[var(--color-teal)]/90 text-white text-xs font-medium px-2 py-0.5">
+              Collab
+            </Badge>
+          )}
+          {artist.open_for_events && (
+            <Badge className="bg-[var(--color-terracotta)] text-white text-xs font-medium px-2 py-0.5">
+              Events
             </Badge>
           )}
         </div>
@@ -71,13 +81,22 @@ export function ArtistCard({ artist }: ArtistCardProps) {
             <h3 className="font-display font-semibold text-lg text-[var(--color-charcoal)] truncate group-hover:text-[var(--color-teal)] transition-colors">
               {artist.display_name}
             </h3>
-            <p className="text-sm text-[var(--color-charcoal)]/60 flex items-center gap-1">
+            <p className="text-sm text-[var(--color-charcoal)]/60 flex items-center gap-1 flex-wrap">
               <span>{MEDIUM_LABELS[artist.primary_medium]}</span>
               <span className="text-[var(--color-charcoal)]/30">•</span>
               <span className="flex items-center gap-0.5">
                 <MapPin className="w-3 h-3" />
                 {LOCATION_LABELS[artist.location]}
               </span>
+              {artist.price_range && artist.price_range !== 'contact' && (
+                <>
+                  <span className="text-[var(--color-charcoal)]/30">•</span>
+                  <span className="flex items-center gap-0.5 text-[var(--color-teal)]">
+                    <DollarSign className="w-3 h-3" />
+                    {PRICE_RANGE_LABELS[artist.price_range]}
+                  </span>
+                </>
+              )}
             </p>
           </div>
         </div>

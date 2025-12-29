@@ -24,6 +24,10 @@ export function ArtistsDirectory({ artists }: ArtistsDirectoryProps) {
   const [selectedMedium, setSelectedMedium] = useState<string>('all');
   const [selectedLocation, setSelectedLocation] = useState<string>('all');
   const [showFilters, setShowFilters] = useState(false);
+  // Availability filters
+  const [filterCommissions, setFilterCommissions] = useState(false);
+  const [filterCollaboration, setFilterCollaboration] = useState(false);
+  const [filterEvents, setFilterEvents] = useState(false);
 
   const filteredArtists = useMemo(() => {
     let results = artists;
@@ -40,6 +44,17 @@ export function ArtistsDirectory({ artists }: ArtistsDirectoryProps) {
       results = results.filter((a) => a.location === selectedLocation);
     }
 
+    // Availability filters
+    if (filterCommissions) {
+      results = results.filter((a) => a.open_for_commissions);
+    }
+    if (filterCollaboration) {
+      results = results.filter((a) => a.open_for_collaboration);
+    }
+    if (filterEvents) {
+      results = results.filter((a) => a.open_for_events);
+    }
+
     if (searchQuery) {
       const searchLower = searchQuery.toLowerCase();
       results = results.filter(
@@ -51,14 +66,17 @@ export function ArtistsDirectory({ artists }: ArtistsDirectoryProps) {
     }
 
     return results;
-  }, [artists, searchQuery, selectedMedium, selectedLocation]);
+  }, [artists, searchQuery, selectedMedium, selectedLocation, filterCommissions, filterCollaboration, filterEvents]);
 
-  const hasActiveFilters = selectedMedium !== 'all' || selectedLocation !== 'all' || searchQuery;
+  const hasActiveFilters = selectedMedium !== 'all' || selectedLocation !== 'all' || searchQuery || filterCommissions || filterCollaboration || filterEvents;
 
   const clearFilters = () => {
     setSearchQuery('');
     setSelectedMedium('all');
     setSelectedLocation('all');
+    setFilterCommissions(false);
+    setFilterCollaboration(false);
+    setFilterEvents(false);
   };
 
   return (
@@ -153,6 +171,41 @@ export function ArtistsDirectory({ artists }: ArtistsDirectoryProps) {
             </Button>
           </div>
 
+          {/* Availability Filter Pills - Desktop */}
+          <div className="hidden md:flex gap-2 mt-4">
+            <span className="text-sm text-[var(--color-charcoal)]/60 mr-2 self-center">Available for:</span>
+            <button
+              onClick={() => setFilterCommissions(!filterCommissions)}
+              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
+                filterCommissions
+                  ? 'bg-[var(--color-ochre)] text-[var(--color-soft-black)]'
+                  : 'bg-white border border-[var(--color-charcoal)]/10 text-[var(--color-charcoal)]/70 hover:border-[var(--color-ochre)] hover:text-[var(--color-ochre)]'
+              }`}
+            >
+              Commissions
+            </button>
+            <button
+              onClick={() => setFilterCollaboration(!filterCollaboration)}
+              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
+                filterCollaboration
+                  ? 'bg-[var(--color-teal)] text-white'
+                  : 'bg-white border border-[var(--color-charcoal)]/10 text-[var(--color-charcoal)]/70 hover:border-[var(--color-teal)] hover:text-[var(--color-teal)]'
+              }`}
+            >
+              Collaboration
+            </button>
+            <button
+              onClick={() => setFilterEvents(!filterEvents)}
+              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
+                filterEvents
+                  ? 'bg-[var(--color-terracotta)] text-white'
+                  : 'bg-white border border-[var(--color-charcoal)]/10 text-[var(--color-charcoal)]/70 hover:border-[var(--color-terracotta)] hover:text-[var(--color-terracotta)]'
+              }`}
+            >
+              Events
+            </button>
+          </div>
+
           {/* Mobile Filters Dropdown */}
           {showFilters && (
             <div className="md:hidden mt-4 pt-4 border-t border-[var(--color-charcoal)]/10 space-y-3">
@@ -183,6 +236,43 @@ export function ArtistsDirectory({ artists }: ArtistsDirectoryProps) {
                   ))}
                 </SelectContent>
               </Select>
+
+              {/* Availability Pills - Mobile */}
+              <div className="pt-2">
+                <span className="text-sm text-[var(--color-charcoal)]/60 block mb-2">Available for:</span>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={() => setFilterCommissions(!filterCommissions)}
+                    className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
+                      filterCommissions
+                        ? 'bg-[var(--color-ochre)] text-[var(--color-soft-black)]'
+                        : 'bg-white border border-[var(--color-charcoal)]/10 text-[var(--color-charcoal)]/70'
+                    }`}
+                  >
+                    Commissions
+                  </button>
+                  <button
+                    onClick={() => setFilterCollaboration(!filterCollaboration)}
+                    className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
+                      filterCollaboration
+                        ? 'bg-[var(--color-teal)] text-white'
+                        : 'bg-white border border-[var(--color-charcoal)]/10 text-[var(--color-charcoal)]/70'
+                    }`}
+                  >
+                    Collaboration
+                  </button>
+                  <button
+                    onClick={() => setFilterEvents(!filterEvents)}
+                    className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
+                      filterEvents
+                        ? 'bg-[var(--color-terracotta)] text-white'
+                        : 'bg-white border border-[var(--color-charcoal)]/10 text-[var(--color-charcoal)]/70'
+                    }`}
+                  >
+                    Events
+                  </button>
+                </div>
+              </div>
 
               {hasActiveFilters && (
                 <Button
