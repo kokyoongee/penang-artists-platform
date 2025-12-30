@@ -13,21 +13,18 @@ import {
 import { createAdminClient, getProfileWithClient } from '@/lib/supabase/server';
 import { Button } from '@/components/ui/button';
 import { Artist } from '@/lib/supabase/types';
+import { getCachedArtist, getCachedDashboardCounts } from '@/lib/cache';
 
 export default async function DashboardPage() {
-  // Single client creation - reuse for all queries
-  const { profile, supabase, userId } = await getProfileWithClient();
+  // Get profile and userId - cached queries handle their own clients
+  const { profile, userId } = await getProfileWithClient();
 
   if (!profile || !userId) {
     return null;
   }
 
-  // Get artist data
-  let { data: artistData } = await supabase
-    .from('artists')
-    .select('*')
-    .eq('user_id', userId)
-    .single();
+  // Get artist data from cache (60s TTL)
+  let artistData = await getCachedArtist(userId);
 
   // Auto-create draft artist profile if none exists (fixes "join twice" UX issue)
   if (!artistData) {
@@ -66,22 +63,10 @@ export default async function DashboardPage() {
 
   const artist = artistData as Artist | null;
 
-  // Parallel queries for counts - much faster than sequential
-  const [portfolioResult, inquiriesResult] = artist
-    ? await Promise.all([
-        supabase
-          .from('portfolio_items')
-          .select('*', { count: 'exact', head: true })
-          .eq('artist_id', artist.id),
-        supabase
-          .from('inquiries')
-          .select('*', { count: 'exact', head: true })
-          .eq('artist_id', artist.id),
-      ])
-    : [{ count: 0 }, { count: 0 }];
-
-  const portfolioCount = portfolioResult.count ?? 0;
-  const inquiriesCount = inquiriesResult.count ?? 0;
+  // Get counts from cache (30s TTL) - uses parallel queries internally
+  const { portfolioCount, inquiriesCount } = artist
+    ? await getCachedDashboardCounts(artist.id)
+    : { portfolioCount: 0, inquiriesCount: 0 };
 
   // No artist profile yet - show onboarding
   if (!artist) {
