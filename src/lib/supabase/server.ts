@@ -67,6 +67,26 @@ export async function getProfile(): Promise<Profile | null> {
   return profile;
 }
 
+// Optimized version that returns both profile and client to avoid recreating
+export async function getProfileWithClient(): Promise<{
+  profile: Profile | null;
+  supabase: Awaited<ReturnType<typeof createServerClient>>;
+  userId: string | null;
+}> {
+  const supabase = await createServerClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) return { profile: null, supabase, userId: null };
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', user.id)
+    .single();
+
+  return { profile, supabase, userId: user.id };
+}
+
 export async function isAdmin() {
   const profile = await getProfile();
   return profile?.role === 'admin';

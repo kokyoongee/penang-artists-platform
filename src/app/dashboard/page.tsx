@@ -10,15 +10,15 @@ import {
   Clock,
   Sparkles,
 } from 'lucide-react';
-import { createServerClient, createAdminClient, getProfile } from '@/lib/supabase/server';
+import { createAdminClient, getProfileWithClient } from '@/lib/supabase/server';
 import { Button } from '@/components/ui/button';
 import { Artist } from '@/lib/supabase/types';
 
 export default async function DashboardPage() {
-  const profile = await getProfile();
-  const supabase = await createServerClient();
+  // Single client creation - reuse for all queries
+  const { profile, supabase, userId } = await getProfileWithClient();
 
-  if (!profile) {
+  if (!profile || !userId) {
     return null;
   }
 
@@ -26,7 +26,7 @@ export default async function DashboardPage() {
   let { data: artistData } = await supabase
     .from('artists')
     .select('*')
-    .eq('user_id', profile.id)
+    .eq('user_id', userId)
     .single();
 
   // Auto-create draft artist profile if none exists (fixes "join twice" UX issue)
@@ -46,7 +46,7 @@ export default async function DashboardPage() {
     const { data: newArtist } = await adminClient
       .from('artists')
       .insert({
-        user_id: profile.id,
+        user_id: userId,
         display_name: userName,
         slug: slug,
         email: profile.email,
@@ -66,21 +66,22 @@ export default async function DashboardPage() {
 
   const artist = artistData as Artist | null;
 
-  // Get portfolio count
-  const { count: portfolioCount } = artist
-    ? await supabase
-        .from('portfolio_items')
-        .select('*', { count: 'exact', head: true })
-        .eq('artist_id', artist.id)
-    : { count: 0 };
+  // Parallel queries for counts - much faster than sequential
+  const [portfolioResult, inquiriesResult] = artist
+    ? await Promise.all([
+        supabase
+          .from('portfolio_items')
+          .select('*', { count: 'exact', head: true })
+          .eq('artist_id', artist.id),
+        supabase
+          .from('inquiries')
+          .select('*', { count: 'exact', head: true })
+          .eq('artist_id', artist.id),
+      ])
+    : [{ count: 0 }, { count: 0 }];
 
-  // Get inquiries count
-  const { count: inquiriesCount } = artist
-    ? await supabase
-        .from('inquiries')
-        .select('*', { count: 'exact', head: true })
-        .eq('artist_id', artist.id)
-    : { count: 0 };
+  const portfolioCount = portfolioResult.count ?? 0;
+  const inquiriesCount = inquiriesResult.count ?? 0;
 
   // No artist profile yet - show onboarding
   if (!artist) {
@@ -201,7 +202,7 @@ export default async function DashboardPage() {
             </div>
             <div>
               <p className="text-sm text-gray-500">Portfolio Items</p>
-              <p className="text-2xl font-bold text-gray-900">{portfolioCount || 0}</p>
+              <p className="text-2xl font-bold text-gray-900">{portfolioCount}</p>
             </div>
           </div>
         </div>
@@ -212,7 +213,7 @@ export default async function DashboardPage() {
             </div>
             <div>
               <p className="text-sm text-gray-500">Inquiries</p>
-              <p className="text-2xl font-bold text-gray-900">{inquiriesCount || 0}</p>
+              <p className="text-2xl font-bold text-gray-900">{inquiriesCount}</p>
             </div>
           </div>
         </div>
@@ -294,7 +295,7 @@ export default async function DashboardPage() {
             />
             <ProfileCheckItem
               label="Upload at least 3 portfolio items"
-              completed={(portfolioCount || 0) >= 3}
+              completed={portfolioCount >= 3}
               href="/dashboard/portfolio"
             />
           </div>
@@ -302,7 +303,7 @@ export default async function DashboardPage() {
           {artist.profile_photo &&
             artist.bio.length > 50 &&
             artist.whatsapp &&
-            (portfolioCount || 0) >= 3 && (
+            portfolioCount >= 3 && (
               <div className="mt-6 pt-4 border-t border-gray-100">
                 <p className="text-sm text-gray-600 mb-3">
                   Your profile is ready! Submit it for review to go live.
