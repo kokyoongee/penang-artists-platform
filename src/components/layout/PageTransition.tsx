@@ -1,5 +1,6 @@
 'use client';
 
+// Page transition animation wrapper - v2
 import { useEffect, useState, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 
