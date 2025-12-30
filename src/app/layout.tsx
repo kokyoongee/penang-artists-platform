@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { PageTransition } from "@/components/layout/PageTransition";
+import { NavigationProgress } from "@/components/layout/NavigationProgress";
 import { SettingsProvider } from "@/contexts/SettingsContext";
 
 export const metadata: Metadata = {
@@ -26,11 +29,16 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased min-h-screen flex flex-col">
+        <Suspense fallback={null}>
+          <NavigationProgress />
+        </Suspense>
         <SettingsProvider>
           <div className="pattern-bg" />
           <Header />
           <main className="flex-1 pt-[72px]">
-            {children}
+            <PageTransition>
+              {children}
+            </PageTransition>
           </main>
           <Footer />
         </SettingsProvider>

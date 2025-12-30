@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight, Palette, Users, Sparkles, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { RevealSection } from '@/components/ui/RevealSection';
 import { ArtistCard } from '@/components/artists/ArtistCard';
 import { createServerClient } from '@/lib/supabase/server';
 import { Artist } from '@/types';
@@ -15,7 +16,7 @@ const featuredStories = [
     title: "Chen Wei Lin: 15 Years of Painting Heritage",
     category: "Artist Spotlight",
     categoryClass: "text-[var(--color-teal)]",
-    image: "https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?w=600&q=80",
+    image: "/images/story-chen.webp",
     date: "Dec 26, 2025",
   },
   {
@@ -23,7 +24,7 @@ const featuredStories = [
     title: "How Aishah's Batik Found International Collectors",
     category: "Success Story",
     categoryClass: "text-[var(--color-ochre)]",
-    image: "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=600&q=80",
+    image: "/images/story-aishah.webp",
     date: "Dec 24, 2025",
   },
   {
@@ -31,7 +32,7 @@ const featuredStories = [
     title: "From Grant to Gallery: Kavitha's Dance Journey",
     category: "Success Story",
     categoryClass: "text-[var(--color-ochre)]",
-    image: "https://images.unsplash.com/photo-1547153760-18fc86324498?w=600&q=80",
+    image: "/images/story-kavitha.webp",
     date: "Dec 20, 2025",
     sponsor: "ArtsFAS",
   },
@@ -113,14 +114,16 @@ export default async function HomePage() {
 
       {/* Why Section - The Problem */}
       <section className="mx-4 md:mx-8 my-16">
+        <RevealSection>
         <div className="max-w-6xl mx-auto grid md:grid-cols-[1fr_1.2fr] min-h-[500px] rounded-3xl overflow-hidden">
           {/* Image side */}
           <div className="relative h-[250px] md:h-auto">
             <Image
-              src="https://images.unsplash.com/photo-1578301978693-85fa9c0320b9?w=800&h=600&fit=crop"
+              src="/images/artist-at-work.webp"
               alt="Artist at work"
               fill
               className="object-cover"
+              loading="lazy"
             />
             <div className="absolute inset-0 bg-[var(--color-deep-teal)]/60" />
           </div>
@@ -143,26 +146,31 @@ export default async function HomePage() {
             </div>
           </div>
         </div>
+        </RevealSection>
       </section>
 
       {/* Benefits Section - Bento Grid */}
       <section className="py-20 md:py-28 px-6">
         <div className="max-w-6xl mx-auto">
-          <span className="text-xs font-semibold text-[var(--color-teal)] uppercase tracking-[0.2em]">
-            Why Join
-          </span>
-          <h2 className="font-display text-3xl md:text-4xl font-normal text-[var(--color-soft-black)] mt-2">
-            Built for artists, by the community
-          </h2>
+          <RevealSection>
+            <span className="text-xs font-semibold text-[var(--color-teal)] uppercase tracking-[0.2em]">
+              Why Join
+            </span>
+            <h2 className="font-display text-3xl md:text-4xl font-normal text-[var(--color-soft-black)] mt-2">
+              Built for artists, by the community
+            </h2>
+          </RevealSection>
 
+          <RevealSection delay={100}>
           <div className="grid md:grid-cols-2 gap-6 mt-12">
             {/* Featured large card */}
             <div className="md:row-span-2 relative rounded-3xl overflow-hidden min-h-[500px] group">
               <Image
-                src="https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=800&h=1000&fit=crop"
+                src="/images/benefit-portfolio.webp"
                 alt="Artist portfolio"
                 fill
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
+                loading="lazy"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
               <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
@@ -179,10 +187,11 @@ export default async function HomePage() {
             {/* Card 2 */}
             <div className="relative rounded-3xl overflow-hidden min-h-[240px] group">
               <Image
-                src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&h=500&fit=crop"
+                src="/images/benefit-connect.webp"
                 alt="Artists connecting"
                 fill
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
+                loading="lazy"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
               <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
@@ -197,10 +206,11 @@ export default async function HomePage() {
             {/* Card 3 */}
             <div className="relative rounded-3xl overflow-hidden min-h-[240px] group">
               <Image
-                src="https://images.unsplash.com/photo-1536924940846-227afb31e2a5?w=800&h=500&fit=crop"
+                src="/images/benefit-discover.webp"
                 alt="Art discovery"
                 fill
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
+                loading="lazy"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
               <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
@@ -212,8 +222,10 @@ export default async function HomePage() {
               </div>
             </div>
           </div>
+          </RevealSection>
 
           {/* Free highlight - full width */}
+          <RevealSection delay={200}>
           <div className="relative rounded-3xl overflow-hidden min-h-[200px] mt-6 bg-[var(--color-soft-black)]">
             <div className="absolute inset-0 opacity-5">
               <span className="font-display text-[8rem] md:text-[12rem] font-light italic text-white absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap">
@@ -230,6 +242,7 @@ export default async function HomePage() {
               </p>
             </div>
           </div>
+          </RevealSection>
         </div>
       </section>
 
@@ -237,58 +250,65 @@ export default async function HomePage() {
       <section className="py-20 md:py-28 bg-[var(--color-cream)]">
         <div className="max-w-7xl mx-auto px-6">
           {/* Section Header */}
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-12">
-            <div>
-              <span className="text-sm font-medium text-[var(--color-teal)] uppercase tracking-wider">
-                Featured
-              </span>
-              <h2 className="font-display text-3xl md:text-4xl font-bold text-[var(--color-charcoal)] mt-2">
-                Meet Our Artists
-              </h2>
-            </div>
-            <Link
-              href="/artists"
-              className="text-[var(--color-teal)] font-medium flex items-center gap-2 hover:gap-3 transition-all"
-            >
-              View all artists
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
-
-          {/* Artists Grid */}
-          {featuredArtists.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {featuredArtists.map((artist) => (
-                <ArtistCard key={artist.id} artist={artist} />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-12 bg-[var(--color-warm-white)] rounded-2xl">
-              <p className="text-[var(--color-charcoal)]/60">
-                Featured artists coming soon. Be the first to join!
-              </p>
-              <Link href="/register">
-                <Button className="mt-4 bg-[var(--color-teal)] hover:bg-[var(--color-deep-teal)] text-white">
-                  Register Now
-                </Button>
+          <RevealSection>
+            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-12">
+              <div>
+                <span className="text-sm font-medium text-[var(--color-teal)] uppercase tracking-wider">
+                  Featured
+                </span>
+                <h2 className="font-display text-3xl md:text-4xl font-bold text-[var(--color-charcoal)] mt-2">
+                  Meet Our Artists
+                </h2>
+              </div>
+              <Link
+                href="/artists"
+                className="text-[var(--color-teal)] font-medium flex items-center gap-2 hover:gap-3 transition-all"
+              >
+                View all artists
+                <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
-          )}
+          </RevealSection>
+
+          {/* Artists Grid */}
+          <RevealSection delay={100} stagger>
+            {featuredArtists.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {featuredArtists.map((artist) => (
+                  <ArtistCard key={artist.id} artist={artist} />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12 bg-[var(--color-warm-white)] rounded-2xl">
+                <p className="text-[var(--color-charcoal)]/60">
+                  Featured artists coming soon. Be the first to join!
+                </p>
+                <Link href="/register">
+                  <Button className="mt-4 bg-[var(--color-teal)] hover:bg-[var(--color-deep-teal)] text-white">
+                    Register Now
+                  </Button>
+                </Link>
+              </div>
+            )}
+          </RevealSection>
         </div>
       </section>
 
       {/* Stories Section */}
       <section className="py-20 md:py-28 bg-[var(--color-warm-white)]">
         <div className="max-w-6xl mx-auto px-6">
-          <div className="text-center mb-12">
-            <span className="text-xs font-semibold text-[var(--color-teal)] uppercase tracking-[0.2em]">
-              Stories & Spotlights
-            </span>
-            <h2 className="font-display text-3xl md:text-4xl font-normal text-[var(--color-soft-black)] mt-2">
-              Voices from the community
-            </h2>
-          </div>
+          <RevealSection>
+            <div className="text-center mb-12">
+              <span className="text-xs font-semibold text-[var(--color-teal)] uppercase tracking-[0.2em]">
+                Stories & Spotlights
+              </span>
+              <h2 className="font-display text-3xl md:text-4xl font-normal text-[var(--color-soft-black)] mt-2">
+                Voices from the community
+              </h2>
+            </div>
+          </RevealSection>
 
+          <RevealSection delay={100} stagger>
           <div className="grid md:grid-cols-3 gap-6">
             {featuredStories.map((story) => (
               <Link key={story.id} href={`/stories`} className="group block">
@@ -298,6 +318,7 @@ export default async function HomePage() {
                     alt={story.title}
                     fill
                     className="object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+                    loading="lazy"
                   />
                   {story.sponsor && (
                     <span className="absolute top-3 right-3 text-xs font-medium px-2 py-1 bg-white/95 rounded flex items-center gap-1">
@@ -320,7 +341,9 @@ export default async function HomePage() {
               </Link>
             ))}
           </div>
+          </RevealSection>
 
+          <RevealSection delay={200}>
           <div className="text-center mt-10">
             <Link href="/stories">
               <Button
@@ -331,19 +354,23 @@ export default async function HomePage() {
               </Button>
             </Link>
           </div>
+          </RevealSection>
         </div>
       </section>
 
       {/* How It Works Section */}
       <section className="py-20 md:py-28 px-6">
         <div className="max-w-4xl mx-auto">
-          <span className="text-xs font-semibold text-[var(--color-teal)] uppercase tracking-[0.2em]">
-            How It Works
-          </span>
-          <h2 className="font-display text-3xl md:text-4xl font-normal text-[var(--color-soft-black)] mt-2">
-            Simple steps to join
-          </h2>
+          <RevealSection>
+            <span className="text-xs font-semibold text-[var(--color-teal)] uppercase tracking-[0.2em]">
+              How It Works
+            </span>
+            <h2 className="font-display text-3xl md:text-4xl font-normal text-[var(--color-soft-black)] mt-2">
+              Simple steps to join
+            </h2>
+          </RevealSection>
 
+          <RevealSection delay={100} stagger>
           <div className="flex flex-col gap-6 mt-12">
             {[
               {
@@ -383,25 +410,29 @@ export default async function HomePage() {
               </div>
             ))}
           </div>
+          </RevealSection>
         </div>
       </section>
 
       {/* Why Penang Artists Section */}
       <section className="py-20 md:py-28 bg-[var(--color-warm-white)]">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center max-w-2xl mx-auto mb-16">
-            <span className="text-sm font-medium text-[var(--color-teal)] uppercase tracking-wider">
-              Why Choose Us
-            </span>
-            <h2 className="font-display text-3xl md:text-4xl font-bold text-[var(--color-charcoal)] mt-2">
-              Connecting Art Lovers with Creators
-            </h2>
-            <p className="mt-4 text-[var(--color-charcoal)]/70">
-              We make it easy to discover, connect, and collaborate with
-              Penang&apos;s talented artists.
-            </p>
-          </div>
+          <RevealSection>
+            <div className="text-center max-w-2xl mx-auto mb-16">
+              <span className="text-sm font-medium text-[var(--color-teal)] uppercase tracking-wider">
+                Why Choose Us
+              </span>
+              <h2 className="font-display text-3xl md:text-4xl font-bold text-[var(--color-charcoal)] mt-2">
+                Connecting Art Lovers with Creators
+              </h2>
+              <p className="mt-4 text-[var(--color-charcoal)]/70">
+                We make it easy to discover, connect, and collaborate with
+                Penang&apos;s talented artists.
+              </p>
+            </div>
+          </RevealSection>
 
+          <RevealSection delay={100} stagger>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Card 1 */}
             <div className="bg-[var(--color-cream)] rounded-2xl p-8 text-center">
@@ -445,31 +476,34 @@ export default async function HomePage() {
               </p>
             </div>
           </div>
+          </RevealSection>
         </div>
       </section>
 
       {/* CTA Section */}
       <section className="py-20 md:py-28 bg-[var(--color-deep-teal)]">
-        <div className="max-w-4xl mx-auto px-6 text-center">
-          <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight">
-            Are You an Artist?
-          </h2>
-          <p className="mt-6 text-xl text-white/70 max-w-2xl mx-auto">
-            Join Penang&apos;s growing community of creatives. Showcase your work,
-            connect with collectors, and grow your artistic career.
-          </p>
-          <div className="mt-10">
-            <Link href="/register">
-              <Button className="bg-[var(--color-ochre)] hover:bg-[var(--color-ochre)]/90 text-[var(--color-soft-black)] font-semibold px-10 py-6 text-lg rounded-full">
-                Join the Platform
-                <ArrowRight className="ml-2 w-5 h-5" />
-              </Button>
-            </Link>
+        <RevealSection>
+          <div className="max-w-4xl mx-auto px-6 text-center">
+            <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight">
+              Are You an Artist?
+            </h2>
+            <p className="mt-6 text-xl text-white/70 max-w-2xl mx-auto">
+              Join Penang&apos;s growing community of creatives. Showcase your work,
+              connect with collectors, and grow your artistic career.
+            </p>
+            <div className="mt-10">
+              <Link href="/register">
+                <Button className="bg-[var(--color-ochre)] hover:bg-[var(--color-ochre)]/90 text-[var(--color-soft-black)] font-semibold px-10 py-6 text-lg rounded-full">
+                  Join the Platform
+                  <ArrowRight className="ml-2 w-5 h-5" />
+                </Button>
+              </Link>
+            </div>
+            <p className="mt-6 text-sm text-white/50">
+              Free to join • Get discovered • Connect with collectors
+            </p>
           </div>
-          <p className="mt-6 text-sm text-white/50">
-            Free to join • Get discovered • Connect with collectors
-          </p>
-        </div>
+        </RevealSection>
       </section>
     </div>
   );
