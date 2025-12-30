@@ -29,7 +29,7 @@ export function PageTransition({ children }: PageTransitionProps) {
       // Reset animation after it completes
       const timer = setTimeout(() => {
         setIsAnimating(false);
-      }, 500);
+      }, 1000);
 
       return () => clearTimeout(timer);
     }

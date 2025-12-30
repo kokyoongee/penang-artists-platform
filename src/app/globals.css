@@ -139,13 +139,13 @@
 }
 
 .page-animate {
-  animation: pageSlideIn 0.5s ease-out forwards;
+  animation: pageSlideIn 1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 @keyframes pageSlideIn {
   0% {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(40px);
   }
   100% {
     opacity: 1;
