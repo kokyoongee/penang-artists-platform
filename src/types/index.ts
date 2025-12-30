@@ -94,6 +94,65 @@ export interface PortfolioItem {
   created_at: string;
 }
 
+// Social features
+export interface Comment {
+  id: string;
+  artist_id: string;
+  portfolio_item_id: string;
+  parent_id: string | null;
+  content: string;
+  is_edited: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Like {
+  id: string;
+  artist_id: string;
+  portfolio_item_id: string;
+  created_at: string;
+}
+
+export interface Follow {
+  id: string;
+  follower_id: string;
+  following_id: string;
+  created_at: string;
+}
+
+export type NotificationType =
+  | 'new_follower'
+  | 'portfolio_like'
+  | 'portfolio_comment'
+  | 'comment_reply';
+
+export interface Notification {
+  id: string;
+  recipient_id: string;
+  actor_id: string;
+  notification_type: NotificationType;
+  entity_type: string | null;
+  entity_id: string | null;
+  payload: Record<string, unknown> | null;
+  is_read: boolean;
+  created_at: string;
+}
+
+export type ActivityType =
+  | 'portfolio_item_added'
+  | 'service_added'
+  | 'event_created';
+
+export interface Activity {
+  id: string;
+  artist_id: string;
+  activity_type: ActivityType;
+  entity_type: string | null;
+  entity_id: string | null;
+  entity_data: Record<string, unknown> | null;
+  created_at: string;
+}
+
 export interface Inquiry {
   id: string;
   artist_id: string;

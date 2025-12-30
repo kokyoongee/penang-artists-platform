@@ -4,6 +4,7 @@ import { ArrowRight, Palette, Users, Sparkles, ChevronDown } from 'lucide-react'
 import { Button } from '@/components/ui/button';
 import { RevealSection } from '@/components/ui/RevealSection';
 import { ArtistCard } from '@/components/artists/ArtistCard';
+import { TrendingSection } from '@/components/home';
 import { createServerClient } from '@/lib/supabase/server';
 import { Artist } from '@/types';
 
@@ -293,6 +294,9 @@ export default async function HomePage() {
           </RevealSection>
         </div>
       </section>
+
+      {/* Trending Artists Section */}
+      <TrendingSection />
 
       {/* Stories Section */}
       <section className="py-20 md:py-28 bg-[var(--color-warm-white)]">

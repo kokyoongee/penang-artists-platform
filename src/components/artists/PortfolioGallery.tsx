@@ -4,9 +4,15 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { PortfolioItem } from '@/types';
+import { LikeButton } from '@/components/social';
 
 interface PortfolioGalleryProps {
   items: PortfolioItem[];
+}
+
+interface PortfolioItemWithCounts extends PortfolioItem {
+  like_count?: number;
+  comment_count?: number;
 }
 
 export function PortfolioGallery({ items }: PortfolioGalleryProps) {
@@ -56,9 +62,17 @@ export function PortfolioGallery({ items }: PortfolioGalleryProps) {
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             <div className="absolute bottom-0 left-0 right-0 p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-              <p className="text-white text-sm font-medium truncate">
-                {item.title}
-              </p>
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-white text-sm font-medium truncate flex-1">
+                  {item.title}
+                </p>
+                <LikeButton
+                  portfolioItemId={item.id}
+                  initialLikeCount={(item as PortfolioItemWithCounts).like_count ?? 0}
+                  variant="overlay"
+                  showCount={true}
+                />
+              </div>
             </div>
           </button>
         ))}
@@ -133,6 +147,14 @@ export function PortfolioGallery({ items }: PortfolioGalleryProps) {
                   {items[selectedIndex].description}
                 </p>
               )}
+              <div className="flex items-center justify-center gap-4 mt-3">
+                <LikeButton
+                  portfolioItemId={items[selectedIndex].id}
+                  initialLikeCount={(items[selectedIndex] as PortfolioItemWithCounts).like_count ?? 0}
+                  variant="overlay"
+                  showCount={true}
+                />
+              </div>
               <p className="text-white/50 text-sm mt-2">
                 {selectedIndex + 1} of {items.length}
               </p>

@@ -8,6 +8,8 @@ import { ContactForm } from '@/components/artists/ContactForm';
 import { PortfolioGallery } from '@/components/artists/PortfolioGallery';
 import { ServicesSection } from '@/components/artists/ServicesSection';
 import { UpcomingEventsSection } from '@/components/artists/UpcomingEventsSection';
+import { FollowButton, FollowerCount } from '@/components/social';
+import { SimilarArtists } from '@/components/artists/SimilarArtists';
 import { createServerClient } from '@/lib/supabase/server';
 import { Artist, PortfolioItem, Service, Event, MEDIUM_LABELS, LOCATION_LABELS, PRICE_RANGE_LABELS, EXPERIENCE_LABELS } from '@/types';
 
@@ -17,7 +19,12 @@ interface ArtistProfilePageProps {
 
 export const revalidate = 60; // Revalidate every 60 seconds
 
-async function getArtistBySlug(slug: string): Promise<Artist | null> {
+interface ArtistWithCounts extends Artist {
+  follower_count: number;
+  following_count: number;
+}
+
+async function getArtistBySlug(slug: string): Promise<ArtistWithCounts | null> {
   const supabase = await createServerClient();
 
   const { data, error } = await supabase
@@ -31,7 +38,13 @@ async function getArtistBySlug(slug: string): Promise<Artist | null> {
     return null;
   }
 
-  return data as Artist;
+  // Return with default counts (columns may not exist yet in DB)
+  const artistData = data as Artist;
+  return {
+    ...artistData,
+    follower_count: (data as Record<string, unknown>).follower_count as number ?? 0,
+    following_count: (data as Record<string, unknown>).following_count as number ?? 0,
+  } as ArtistWithCounts;
 }
 
 async function getPortfolioItems(artistId: string): Promise<PortfolioItem[]> {
@@ -190,25 +203,44 @@ export default async function ArtistProfilePage({ params }: ArtistProfilePagePro
                       {LOCATION_LABELS[artist.location]}
                     </span>
                   </div>
+
+                  {/* Follower/Following Counts */}
+                  <div className="mt-4">
+                    <FollowerCount
+                      artistId={artist.id}
+                      artistName={artist.display_name}
+                      followerCount={artist.follower_count}
+                      followingCount={artist.following_count}
+                    />
+                  </div>
                 </div>
 
-                {/* Availability Badges */}
-                <div className="flex flex-wrap gap-2">
-                  {artist.open_for_commissions && (
-                    <Badge className="bg-[var(--color-ochre)] text-[var(--color-soft-black)]">
-                      Open for Commissions
-                    </Badge>
-                  )}
-                  {artist.open_for_collaboration && (
-                    <Badge variant="outline" className="border-[var(--color-teal)] text-[var(--color-teal)]">
-                      Open to Collaborate
-                    </Badge>
-                  )}
-                  {artist.open_for_events && (
-                    <Badge variant="outline" className="border-[var(--color-terracotta)] text-[var(--color-terracotta)]">
-                      Available for Events
-                    </Badge>
-                  )}
+                {/* Right side: Follow Button + Availability Badges */}
+                <div className="flex flex-col gap-4">
+                  {/* Follow Button */}
+                  <FollowButton
+                    targetArtistId={artist.id}
+                    initialFollowerCount={artist.follower_count}
+                  />
+
+                  {/* Availability Badges */}
+                  <div className="flex flex-wrap gap-2">
+                    {artist.open_for_commissions && (
+                      <Badge className="bg-[var(--color-ochre)] text-[var(--color-soft-black)]">
+                        Open for Commissions
+                      </Badge>
+                    )}
+                    {artist.open_for_collaboration && (
+                      <Badge variant="outline" className="border-[var(--color-teal)] text-[var(--color-teal)]">
+                        Open to Collaborate
+                      </Badge>
+                    )}
+                    {artist.open_for_events && (
+                      <Badge variant="outline" className="border-[var(--color-terracotta)] text-[var(--color-terracotta)]">
+                        Available for Events
+                      </Badge>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -276,6 +308,9 @@ export default async function ArtistProfilePage({ params }: ArtistProfilePagePro
                   <PortfolioGallery items={portfolioItems} />
                 </div>
               )}
+
+              {/* Similar Artists */}
+              <SimilarArtists artistId={artist.id} artistName={artist.display_name} />
             </div>
 
             {/* Right Column - Contact */}

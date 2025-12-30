@@ -14,13 +14,22 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { createClient } from '@/lib/supabase/client';
+import { NotificationBell } from '@/components/notifications';
 import type { User as SupabaseUser } from '@supabase/supabase-js';
 
-const navLinks = [
+const publicNavLinks = [
   { href: '/artists', label: 'Artists' },
   { href: '/events', label: 'Events' },
   { href: '/stories', label: 'Stories' },
   { href: '/funding', label: 'Funding' },
+  { href: '/about', label: 'About' },
+];
+
+const authNavLinks = [
+  { href: '/feed', label: 'Feed' },
+  { href: '/artists', label: 'Artists' },
+  { href: '/events', label: 'Events' },
+  { href: '/stories', label: 'Stories' },
   { href: '/about', label: 'About' },
 ];
 
@@ -65,7 +74,7 @@ export function Header() {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-8">
-          {navLinks.map((link) => (
+          {(user ? authNavLinks : publicNavLinks).map((link) => (
             <Link
               key={link.href}
               href={link.href}
@@ -80,38 +89,41 @@ export function Header() {
           ))}
           {!loading && (
             user ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button className="flex items-center justify-center w-9 h-9 rounded-full bg-[var(--color-teal)] text-white hover:bg-[var(--color-deep-teal)] transition-colors">
-                    {user.user_metadata?.avatar_url ? (
-                      <img
-                        src={user.user_metadata.avatar_url}
-                        alt="Profile"
-                        className="w-9 h-9 rounded-full object-cover"
-                      />
-                    ) : (
-                      <User className="w-5 h-5" />
-                    )}
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
-                  <div className="px-2 py-1.5 text-sm text-gray-500 truncate">
-                    {user.email}
-                  </div>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link href="/dashboard" className="cursor-pointer">
-                      <LayoutDashboard className="w-4 h-4 mr-2" />
-                      Dashboard
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-red-600">
-                    <LogOut className="w-4 h-4 mr-2" />
-                    Sign Out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <div className="flex items-center gap-3">
+                <NotificationBell />
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="flex items-center justify-center w-9 h-9 rounded-full bg-[var(--color-teal)] text-white hover:bg-[var(--color-deep-teal)] transition-colors">
+                      {user.user_metadata?.avatar_url ? (
+                        <img
+                          src={user.user_metadata.avatar_url}
+                          alt="Profile"
+                          className="w-9 h-9 rounded-full object-cover"
+                        />
+                      ) : (
+                        <User className="w-5 h-5" />
+                      )}
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <div className="px-2 py-1.5 text-sm text-gray-500 truncate">
+                      {user.email}
+                    </div>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link href="/dashboard" className="cursor-pointer">
+                        <LayoutDashboard className="w-4 h-4 mr-2" />
+                        Dashboard
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-red-600">
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Sign Out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             ) : (
               <div className="flex items-center gap-3">
                 <Link href="/login" className="text-sm font-medium text-[var(--color-charcoal)] hover:text-[var(--color-teal)] transition-colors">
@@ -136,7 +148,7 @@ export function Header() {
           </SheetTrigger>
           <SheetContent side="right" className="w-[280px] bg-[var(--color-cream)]">
             <nav className="flex flex-col gap-6 mt-8">
-              {navLinks.map((link) => (
+              {(user ? authNavLinks : publicNavLinks).map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}

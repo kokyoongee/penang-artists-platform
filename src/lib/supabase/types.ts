@@ -439,3 +439,171 @@ export type ServiceUpdate = Database['public']['Tables']['services']['Update'];
 export type Event = Database['public']['Tables']['events']['Row'];
 export type EventInsert = Database['public']['Tables']['events']['Insert'];
 export type EventUpdate = Database['public']['Tables']['events']['Update'];
+
+// ============================================
+// SOCIAL FEATURES TYPES
+// ============================================
+
+export type NotificationType =
+  | 'new_follower'
+  | 'portfolio_like'
+  | 'portfolio_comment'
+  | 'comment_reply'
+  | 'mention'
+  | 'event_reminder'
+  | 'system';
+
+export type ActivityType =
+  | 'portfolio_item_added'
+  | 'portfolio_item_updated'
+  | 'service_added'
+  | 'event_created'
+  | 'event_updated'
+  | 'profile_updated';
+
+// Follows
+export interface Follow {
+  id: string;
+  follower_id: string;
+  following_id: string;
+  created_at: string;
+}
+
+export interface FollowInsert {
+  id?: string;
+  follower_id: string;
+  following_id: string;
+  created_at?: string;
+}
+
+// Likes
+export interface Like {
+  id: string;
+  artist_id: string;
+  portfolio_item_id: string;
+  created_at: string;
+}
+
+export interface LikeInsert {
+  id?: string;
+  artist_id: string;
+  portfolio_item_id: string;
+  created_at?: string;
+}
+
+// Comments
+export interface Comment {
+  id: string;
+  artist_id: string;
+  portfolio_item_id: string;
+  parent_id: string | null;
+  content: string;
+  is_edited: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CommentInsert {
+  id?: string;
+  artist_id: string;
+  portfolio_item_id: string;
+  parent_id?: string | null;
+  content: string;
+  is_edited?: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface CommentUpdate {
+  content?: string;
+  is_edited?: boolean;
+  updated_at?: string;
+}
+
+export interface CommentWithAuthor extends Comment {
+  artist: {
+    id: string;
+    display_name: string;
+    slug: string;
+    profile_photo: string | null;
+  };
+  replies?: CommentWithAuthor[];
+}
+
+// Notifications
+export interface Notification {
+  id: string;
+  recipient_id: string;
+  actor_id: string | null;
+  notification_type: NotificationType;
+  entity_type: string | null;
+  entity_id: string | null;
+  payload: Record<string, unknown>;
+  is_read: boolean;
+  read_at: string | null;
+  created_at: string;
+}
+
+export interface NotificationWithActor extends Notification {
+  actor?: {
+    id: string;
+    display_name: string;
+    slug: string;
+    profile_photo: string | null;
+  } | null;
+}
+
+// Activities
+export interface Activity {
+  id: string;
+  artist_id: string;
+  activity_type: ActivityType;
+  entity_type: string;
+  entity_id: string;
+  entity_data: Record<string, unknown>;
+  created_at: string;
+}
+
+export interface ActivityFeedItem extends Activity {
+  artist_name: string;
+  artist_slug: string;
+  artist_photo: string | null;
+}
+
+// Artist with social counts (extended)
+export interface ArtistWithSocialCounts extends Artist {
+  follower_count: number;
+  following_count: number;
+}
+
+// Portfolio item with engagement counts
+export interface PortfolioItemWithEngagement extends PortfolioItem {
+  like_count: number;
+  comment_count: number;
+  is_liked?: boolean; // For current user
+}
+
+// Similar artist result
+export interface SimilarArtist {
+  id: string;
+  display_name: string;
+  slug: string;
+  profile_photo: string | null;
+  tagline: string | null;
+  primary_medium: MediumCategory;
+  location: LocationArea;
+  follower_count: number;
+  match_score: number;
+}
+
+// Trending artist result
+export interface TrendingArtist {
+  id: string;
+  display_name: string;
+  slug: string;
+  profile_photo: string | null;
+  tagline: string | null;
+  primary_medium: MediumCategory;
+  new_followers: number;
+  total_followers: number;
+}
