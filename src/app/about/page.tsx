@@ -39,7 +39,7 @@ const team = [
   {
     name: 'The Community',
     role: 'Artists, Patrons & Partners',
-    image: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=400&h=400&fit=crop',
+    image: '/images/community.webp',
     description: 'This platform belongs to Penang\'s creative community. Every artist, supporter, and partner shapes what we become.',
   },
 ];
@@ -77,10 +77,11 @@ export default function AboutPage() {
             <div className="relative">
               <div className="aspect-[4/3] rounded-2xl overflow-hidden">
                 <Image
-                  src="https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=800&h=600&fit=crop"
+                  src="/images/benefit-portfolio.webp"
                   alt="Artists working in Penang"
                   fill
                   className="object-cover"
+                  loading="lazy"
                 />
               </div>
               {/* Decorative element */}

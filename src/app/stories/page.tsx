@@ -14,7 +14,7 @@ const stories = [
     excerpt: "From a small studio in Armenian Street, Chen Wei Lin has spent 15 years capturing the soul of George Town's shophouses and streets through delicate watercolours.",
     category: "spotlight",
     categoryLabel: "Artist Spotlight",
-    image: "https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?w=800&h=500&fit=crop",
+    image: "/images/story-chen.webp",
     date: "Dec 26, 2025",
     readTime: "6 min read",
     featured: true,
@@ -25,7 +25,7 @@ const stories = [
     excerpt: "When a Singapore gallery discovered Aishah's contemporary batik work on the platform, it opened doors she never imagined possible.",
     category: "success",
     categoryLabel: "Success Story",
-    image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=500&fit=crop",
+    image: "/images/story-aishah-batik.webp",
     date: "Dec 24, 2025",
     readTime: "5 min read",
     featured: false,
@@ -36,7 +36,7 @@ const stories = [
     excerpt: "Step behind the scenes as Ahmad Faris prepares for his largest mural yet—a 40-foot celebration of Malaysian folklore in Butterworth.",
     category: "behind",
     categoryLabel: "Behind the Scenes",
-    image: "https://images.unsplash.com/photo-1561214115-f2f134cc4912?w=800&h=500&fit=crop",
+    image: "/images/story-ahmad-mural.webp",
     date: "Dec 22, 2025",
     readTime: "4 min read",
     featured: false,
@@ -47,7 +47,7 @@ const stories = [
     excerpt: "The annual festival is now accepting submissions for visual art, performance, and installation works. Application deadline: March 31, 2025.",
     category: "community",
     categoryLabel: "Community",
-    image: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=800&h=500&fit=crop",
+    image: "/images/story-festival.webp",
     date: "Dec 20, 2025",
     readTime: "3 min read",
     featured: false,
@@ -58,7 +58,7 @@ const stories = [
     excerpt: "An ArtsFAS grant transformed Kavitha Devi's vision of a contemporary Bharatanatyam production into reality, culminating in a sold-out show.",
     category: "success",
     categoryLabel: "Success Story",
-    image: "https://images.unsplash.com/photo-1508700929628-666bc8bd84ea?w=800&h=500&fit=crop",
+    image: "/images/story-kavitha-dance.webp",
     date: "Dec 18, 2025",
     readTime: "7 min read",
     featured: false,
@@ -70,7 +70,7 @@ const stories = [
     excerpt: "In her Tanjung Bungah studio, Soo Hui Wen shares how the coastal landscape and her Nyonya heritage influence every piece she creates.",
     category: "spotlight",
     categoryLabel: "Artist Spotlight",
-    image: "https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=800&h=500&fit=crop",
+    image: "/images/story-ceramics.webp",
     date: "Dec 15, 2025",
     readTime: "5 min read",
     featured: false,
@@ -157,6 +157,7 @@ export default function StoriesPage() {
                       alt={story.title}
                       fill
                       className="object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+                      loading="lazy"
                     />
                     {story.sponsor && (
                       <span className="absolute top-4 right-4 text-xs font-medium px-2 py-1 bg-white/95 rounded flex items-center gap-1">

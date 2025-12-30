@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 
 interface PageTransitionProps {
@@ -9,27 +9,35 @@ interface PageTransitionProps {
 
 export function PageTransition({ children }: PageTransitionProps) {
   const pathname = usePathname();
-  const [isVisible, setIsVisible] = useState(false);
-  const [displayChildren, setDisplayChildren] = useState(children);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const prevPathname = useRef(pathname);
+  const isFirstRender = useRef(true);
 
   useEffect(() => {
-    // Reset animation on route change
-    setIsVisible(false);
+    // Skip animation on first render
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      prevPathname.current = pathname;
+      return;
+    }
 
-    // Small delay to ensure CSS transition triggers
-    const timer = setTimeout(() => {
-      setDisplayChildren(children);
-      setIsVisible(true);
-    }, 50);
+    // Only animate if pathname actually changed
+    if (prevPathname.current !== pathname) {
+      setIsAnimating(true);
+      prevPathname.current = pathname;
 
-    return () => clearTimeout(timer);
-  }, [pathname, children]);
+      // Reset animation after it completes
+      const timer = setTimeout(() => {
+        setIsAnimating(false);
+      }, 500);
+
+      return () => clearTimeout(timer);
+    }
+  }, [pathname]);
 
   return (
-    <div
-      className={`page-transition ${isVisible ? 'page-visible' : 'page-hidden'}`}
-    >
-      {displayChildren}
+    <div className={`page-content ${isAnimating ? 'page-animate' : ''}`}>
+      {children}
     </div>
   );
 }

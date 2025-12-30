@@ -134,18 +134,23 @@
 }
 
 /* Page Transitions */
-.page-transition {
-  transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+.page-content {
+  animation: none;
 }
 
-.page-hidden {
-  opacity: 0;
-  transform: translateY(12px);
+.page-animate {
+  animation: pageSlideIn 0.5s ease-out forwards;
 }
 
-.page-visible {
-  opacity: 1;
-  transform: translateY(0);
+@keyframes pageSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Section Reveal Animations */
